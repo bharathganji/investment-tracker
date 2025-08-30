@@ -1,53 +1,130 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-import { LatestPost } from "@/app/_components/post";
-import { api, HydrateClient } from "@/trpc/server";
-
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-
-  void api.post.getLatest.prefetch();
-
+export default function Home() {
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#1e3a8a] to-[#0f172a] p-4 text-white">
+      <div className="container flex max-w-4xl flex-col items-center justify-center gap-12">
+        <div className="space-y-4 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">
+            Investment <span className="text-[hsl(200,90%,60%)]">Tracker</span>
           </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-          </div>
-
-          <LatestPost />
+          <p className="mx-auto max-w-2xl text-lg text-gray-300 md:text-xl">
+            Track your trades, analyze performance, and monitor your investment
+            goals with ease.
+          </p>
         </div>
-      </main>
-    </HydrateClient>
+
+        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card className="border-0 bg-white/10 transition-all duration-300 hover:bg-white/20">
+            <CardHeader>
+              <CardTitle className="text-xl">Dashboard</CardTitle>
+              <CardDescription className="text-gray-300">
+                Portfolio overview and performance charts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full" variant="secondary">
+                <Link href="/dashboard">View Dashboard</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-white/10 transition-all duration-300 hover:bg-white/20">
+            <CardHeader>
+              <CardTitle className="text-xl">Add Trade</CardTitle>
+              <CardDescription className="text-gray-300">
+                Record new trades with auto-calculated fees
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full" variant="secondary">
+                <Link href="/trade-entry">Add Trade</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-white/10 transition-all duration-300 hover:bg-white/20">
+            <CardHeader>
+              <CardTitle className="text-xl">Portfolio</CardTitle>
+              <CardDescription className="text-gray-300">
+                View holdings and current market value
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full" variant="secondary">
+                <Link href="/portfolio">View Portfolio</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-white/10 transition-all duration-300 hover:bg-white/20">
+            <CardHeader>
+              <CardTitle className="text-xl">Trade History</CardTitle>
+              <CardDescription className="text-gray-300">
+                All recorded trades with filtering options
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full" variant="secondary">
+                <Link href="/trade-history">View History</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-white/10 transition-all duration-300 hover:bg-white/20">
+            <CardHeader>
+              <CardTitle className="text-xl">Analytics</CardTitle>
+              <CardDescription className="text-gray-300">
+                Performance metrics, ROI, and charts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full" variant="secondary">
+                <Link href="/analytics">View Analytics</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-white/10 transition-all duration-300 hover:bg-white/20">
+            <CardHeader>
+              <CardTitle className="text-xl">Goals</CardTitle>
+              <CardDescription className="text-gray-300">
+                Manage investment goals and track progress
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full" variant="secondary">
+                <Link href="/goals">View Goals</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="w-full max-w-2xl border-0 bg-white/10">
+          <CardHeader>
+            <CardTitle className="text-xl">Get Started</CardTitle>
+            <CardDescription className="text-gray-300">
+              Start tracking your investments today
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 sm:flex-row">
+            <Button asChild size="lg" className="flex-1">
+              <Link href="/trade-entry">Add Your First Trade</Link>
+            </Button>
+            <Button asChild size="lg" variant="secondary" className="flex-1">
+              <Link href="/dashboard">View Dashboard</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }

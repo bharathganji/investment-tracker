@@ -1,0 +1,178 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+
+export default function SettingsPage() {
+  const [settings, setSettings] = useState({
+    theme: "light",
+    notifications: true,
+    currency: "USD",
+    timezone: "UTC",
+  });
+
+  const handleSettingChange = (key: string, value: string | boolean) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  return (
+    <section className="mx-auto max-w-4xl p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Settings</CardTitle>
+          <CardDescription>
+            Manage your account preferences and settings
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-8">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium">General Settings</h3>
+                <p className="text-sm text-muted-foreground">
+                  Configure your application preferences
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Theme</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Choose between light and dark mode
+                    </p>
+                  </div>
+                  <Select
+                    value={settings.theme}
+                    onValueChange={(value) =>
+                      handleSettingChange("theme", value)
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select theme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">Light</SelectItem>
+                      <SelectItem value="dark">Dark</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Notifications</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Enable or disable notifications
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings.notifications}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("notifications", checked)
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Currency</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Default currency for display
+                    </p>
+                  </div>
+                  <Select
+                    value={settings.currency}
+                    onValueChange={(value) =>
+                      handleSettingChange("currency", value)
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="EUR">EUR (€)</SelectItem>
+                      <SelectItem value="GBP">GBP (£)</SelectItem>
+                      <SelectItem value="JPY">JPY (¥)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Timezone</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Your local timezone
+                    </p>
+                  </div>
+                  <Select
+                    value={settings.timezone}
+                    onValueChange={(value) =>
+                      handleSettingChange("timezone", value)
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="UTC">UTC</SelectItem>
+                      <SelectItem value="America/New_York">
+                        Eastern Time
+                      </SelectItem>
+                      <SelectItem value="America/Chicago">
+                        Central Time
+                      </SelectItem>
+                      <SelectItem value="America/Denver">
+                        Mountain Time
+                      </SelectItem>
+                      <SelectItem value="America/Los_Angeles">
+                        Pacific Time
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium">Account</h3>
+                <p className="text-sm text-muted-foreground">
+                  Manage your account settings
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Button variant="outline" className="w-full justify-start">
+                  Change Password
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  Manage Profile
+                </Button>
+                <Button variant="destructive" className="w-full justify-start">
+                  Delete Account
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </section>
+  );
+}
