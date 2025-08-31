@@ -113,6 +113,46 @@ This application can be deployed to any platform that supports Next.js applicati
 - [Vercel](https://vercel.com/)
 - [Netlify](https://netlify.com/)
 - [Docker](https://docker.com/)
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org/) and uses [Conventional Commits](https://www.conventionalcommits.org/) for automatic versioning and changelog generation. The version is automatically bumped and released when changes are merged to the main branch.
+
+### Release Process
+
+Releases are automatically generated using [semantic-release](https://github.com/semantic-release/semantic-release) on every push to the main branch. The release process:
+
+1. Analyzes commits since the last release
+2. Determines the next version based on commit types (feat = minor, fix = patch, etc.)
+3. Generates release notes from commit messages
+4. Updates the CHANGELOG.md
+5. Creates a GitHub release
+
+### Commit Message Format
+
+We follow the Conventional Commits specification:
+
+```
+<type>(<scope>): <short summary>
+  │       │             │
+  │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
+ │       │
+  │       └─⫸ Commit Scope: ui|api|docs|test|chore, etc.
+## Documentation
+
+- [Release Process](docs/RELEASE_PROCESS.md) - How releases are automatically generated
+- [Conventional Commits](docs/CONVENTIONAL_COMMITS.md) - Commit message guidelines and examples
+- [Semantic Release Setup Summary](docs/SEMANTIC_RELEASE_SETUP_SUMMARY.md) - Overview of the semantic release configuration
+- [Release Process](docs/RELEASE_PROCESS.md) - How releases are automatically generated
+- [Conventional Commits](docs/CONVENTIONAL_COMMITS.md) - Commit message guidelines and examples
+  │
+ └─⫸ Commit Type: feat|fix|perf|refactor|style|test|build|ci|docs|chore
+```
+
+Examples:
+- `feat(ui): add trade deletion functionality`
+- `fix(api): resolve portfolio calculation error`
+- `docs: update README with deployment instructions`
+
 
 ## Contributing
 
