@@ -5,6 +5,7 @@ A comprehensive investment tracking application built with Next.js, TypeScript, 
 ## Overview
 
 This is a full-featured investment tracker application that allows users to:
+
 - Log trades with detailed information
 - Track portfolio holdings and performance
 - Monitor investment goals and progress
@@ -14,27 +15,32 @@ This is a full-featured investment tracker application that allows users to:
 ## Features
 
 ### Trade Management
+
 - Add, edit, and delete trades with detailed information
 - Track buy/sell orders with quantities, prices, and fees
 - Automatic fee calculation and P&L tracking
 
 ### Portfolio Tracking
+
 - Real-time portfolio value calculation
 - Holdings table with average cost and current value
 - Portfolio allocation charts and visualizations
 
 ### Performance Analytics
+
 - ROI and CAGR calculations
 - Fee analysis and breakdown
 - Performance charts and metrics
 - Daily/weekly/monthly returns tracking
 
 ### Goal Tracking
+
 - Set investment goals with target amounts and deadlines
 - Track progress with visual indicators
 - Assign assets to specific goals
 
 ### User Experience
+
 - Responsive design for mobile and desktop
 - Dark/light theme support
 - Loading states and error handling
@@ -43,18 +49,21 @@ This is a full-featured investment tracker application that allows users to:
 ## Technologies Used
 
 ### Core Stack
+
 - [Next.js](https://nextjs.org) - React framework with App Router
 - [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
 - [Tailwind CSS](https://tailwindcss.com) - Utility-first CSS framework
 - [tRPC](https://trpc.io) - End-to-end typesafe APIs
 
 ### UI Components
+
 - [shadcn/ui](https://ui.shadcn.com/) - Reusable component library
 - [Recharts](https://recharts.org/) - Charting library for data visualization
 - [Framer Motion](https://www.framer.com/motion/) - Animation library
 - [Sonner](https://sonner.emilkowal.dev/) - Toast notifications
 
 ### Utilities
+
 - [date-fns](https://date-fns.org/) - Date manipulation utilities
 - [react-hook-form](https://react-hook-form.com/) - Form validation
 - [zod](https://zod.dev/) - Schema validation
@@ -63,25 +72,30 @@ This is a full-featured investment tracker application that allows users to:
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 
 ### Installation
+
 ```bash
 npm install
 ```
 
 ### Development
+
 ```bash
 npm run dev
 ```
 
 ### Building for Production
+
 ```bash
 npm run build
 ```
 
 ### Testing
+
 ```bash
 npm run test
 ```
@@ -110,9 +124,15 @@ src/
 ## Deployment
 
 This application can be deployed to any platform that supports Next.js applications:
+
 - [Vercel](https://vercel.com/)
 - [Netlify](https://netlify.com/)
 - [Docker](https://docker.com/)
+
+For detailed deployment instructions, see:
+
+- [Vercel Deployment Guide](./docs/VERCEL_DEPLOYMENT.md)
+
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org/) and uses [Conventional Commits](https://www.conventionalcommits.org/) for automatic versioning and changelog generation. The version is automatically bumped and released when changes are merged to the main branch.
@@ -149,10 +169,10 @@ We follow the Conventional Commits specification:
 ```
 
 Examples:
+
 - `feat(ui): add trade deletion functionality`
 - `fix(api): resolve portfolio calculation error`
 - `docs: update README with deployment instructions`
-
 
 ## Contributing
 

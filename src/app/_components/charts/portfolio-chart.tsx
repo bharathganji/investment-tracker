@@ -1,10 +1,26 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useAppSelector } from '@/store/hooks';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { EnhancedCard, EnhancedCardContent, EnhancedCardDescription, EnhancedCardHeader, EnhancedCardTitle } from '@/components/ui/enhanced-card';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { useAppSelector } from "@/store/hooks";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
+  EnhancedCard,
+  EnhancedCardContent,
+  EnhancedCardDescription,
+  EnhancedCardHeader,
+  EnhancedCardTitle,
+} from "@/components/ui/enhanced-card";
+import { motion } from "framer-motion";
+import { fromSerializableTrade } from "@/lib/utils";
 
 interface PortfolioChartDataPoint {
   date: string;
@@ -17,16 +33,18 @@ interface PortfolioChartProps {
 
 export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const tradesLoading =
+    tradesState && "loading" in tradesState ? tradesState.loading : false;
+
   const [chartData, setChartData] = useState<PortfolioChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Update loading state when trades data changes
     setLoading(tradesLoading);
-    
+
     // Calculate chart data when trades are loaded
     if (!tradesLoading && trades.length > 0) {
       calculateChartData();
@@ -35,22 +53,21 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
 
   const calculateChartData = () => {
     try {
+      // Convert SerializableTrade[] to Trade[]
+      const convertedTrades = trades.map(fromSerializableTrade);
+
       // Group trades by date and calculate cumulative portfolio value
       // This represents the value of assets bought/sold over time
       const groupedData: Record<string, number> = {};
-      
-      trades.forEach(trade => {
-        const dateKey = trade.date instanceof Date
-          ? trade.date.toISOString().split('T')[0]
-          : typeof trade.date === "string"
-          ? new Date(trade.date).toISOString().split('T')[0]
-          : new Date().toISOString().split('T')[0];
+
+      convertedTrades.forEach((trade) => {
+        const dateKey = trade.date.toISOString().split("T")[0];
         if (dateKey) {
           const tradeValue = trade.quantity * trade.price;
           // For portfolio value tracking, we count the value of assets held
           // Buy adds to portfolio value, sell reduces portfolio value
-          const netValue = trade.side === 'buy' ? tradeValue : -tradeValue;
-          
+          const netValue = trade.side === "buy" ? tradeValue : -tradeValue;
+
           if (!groupedData[dateKey]) {
             groupedData[dateKey] = 0;
           }
@@ -65,7 +82,7 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
           cumulativeValue += dailyChange;
           return {
             date,
-            value: parseFloat(cumulativeValue.toFixed(2))
+            value: parseFloat(cumulativeValue.toFixed(2)),
           };
         })
         .sort((a, b) => a.date.localeCompare(b.date));
@@ -73,7 +90,7 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
       setChartData(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error calculating chart data:', error);
+      console.error("Error calculating chart data:", error);
       setLoading(false);
     }
   };
@@ -84,10 +101,12 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
         <EnhancedCard>
           <EnhancedCardHeader>
             <EnhancedCardTitle>Portfolio Performance</EnhancedCardTitle>
-            <EnhancedCardDescription>Loading portfolio performance data...</EnhancedCardDescription>
+            <EnhancedCardDescription>
+              Loading portfolio performance data...
+            </EnhancedCardDescription>
           </EnhancedCardHeader>
           <EnhancedCardContent>
-            <div className="h-64 flex items-center justify-center">
+            <div className="flex h-64 items-center justify-center">
               <p className="text-muted-foreground">Loading chart...</p>
             </div>
           </EnhancedCardContent>
@@ -95,7 +114,7 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
       );
     } else {
       return (
-        <div className="h-64 flex items-center justify-center">
+        <div className="flex h-64 items-center justify-center">
           <p className="text-muted-foreground">Loading chart...</p>
         </div>
       );
@@ -108,10 +127,12 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
         <EnhancedCard>
           <EnhancedCardHeader>
             <EnhancedCardTitle>Portfolio Performance</EnhancedCardTitle>
-            <EnhancedCardDescription>No data available for portfolio performance</EnhancedCardDescription>
+            <EnhancedCardDescription>
+              No data available for portfolio performance
+            </EnhancedCardDescription>
           </EnhancedCardHeader>
           <EnhancedCardContent>
-            <div className="h-64 flex items-center justify-center">
+            <div className="flex h-64 items-center justify-center">
               <p className="text-muted-foreground">No trades recorded yet</p>
             </div>
           </EnhancedCardContent>
@@ -119,7 +140,7 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
       );
     } else {
       return (
-        <div className="h-64 flex items-center justify-center">
+        <div className="flex h-64 items-center justify-center">
           <p className="text-muted-foreground">No trades recorded yet</p>
         </div>
       );
@@ -136,7 +157,9 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
         <EnhancedCard>
           <EnhancedCardHeader>
             <EnhancedCardTitle>Portfolio Performance</EnhancedCardTitle>
-            <EnhancedCardDescription>Historical portfolio value changes over time</EnhancedCardDescription>
+            <EnhancedCardDescription>
+              Historical portfolio value changes over time
+            </EnhancedCardDescription>
           </EnhancedCardHeader>
           <EnhancedCardContent>
             <div className="h-64">
@@ -153,11 +176,16 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis
-                    tickFormatter={(value: number) => `$${value.toLocaleString()}`}
-                    domain={['auto', 'auto']}
+                    tickFormatter={(value: number) =>
+                      `$${value.toLocaleString()}`
+                    }
+                    domain={["auto", "auto"]}
                   />
                   <Tooltip
-                    formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Portfolio Value']}
+                    formatter={(value) => [
+                      `$${Number(value).toFixed(2)}`,
+                      "Portfolio Value",
+                    ]}
                     labelFormatter={(label) => `Date: ${label}`}
                   />
                   <Legend />
@@ -190,10 +218,13 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
               <XAxis dataKey="date" />
               <YAxis
                 tickFormatter={(value: number) => `$${value.toLocaleString()}`}
-                domain={['auto', 'auto']}
+                domain={["auto", "auto"]}
               />
               <Tooltip
-                formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Portfolio Value']}
+                formatter={(value) => [
+                  `$${Number(value).toFixed(2)}`,
+                  "Portfolio Value",
+                ]}
                 labelFormatter={(label) => `Date: ${label}`}
               />
               <Legend />

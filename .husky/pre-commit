@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Run lint-staged first
 npx lint-staged
+
+# Then run TypeScript compiler to check for type errors (this will catch missing modules)
+# We only fail on actual TypeScript errors, not warnings
+npx tsc --noEmit --incremental false
