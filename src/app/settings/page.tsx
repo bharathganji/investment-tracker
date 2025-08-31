@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,17 +18,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { getSettings, saveSettings, type AppSettings } from "@/lib/settings";
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<AppSettings>({
     theme: "light",
     notifications: true,
     currency: "USD",
     timezone: "UTC",
+    feeInputMethod: "fixed",
   });
 
+  useEffect(() => {
+    // Load settings from localStorage on component mount
+    const loadedSettings = getSettings();
+    setSettings(loadedSettings);
+  }, []);
+
   const handleSettingChange = (key: string, value: string | boolean) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    setSettings((prev) => {
+      const newSettings = { ...prev, [key]: value };
+      // Save settings to localStorage
+      saveSettings({ [key]: value });
+      return newSettings;
+    });
   };
 
   return (
@@ -144,6 +157,29 @@ export default function SettingsPage() {
                       <SelectItem value="America/Los_Angeles">
                         Pacific Time
                       </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Fee Input Method</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Default method for entering trade fees
+                    </p>
+                  </div>
+                  <Select
+                    value={settings.feeInputMethod}
+                    onValueChange={(value) =>
+                      handleSettingChange("feeInputMethod", value)
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">Fixed Value</SelectItem>
+                      <SelectItem value="percentage">Percentage</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

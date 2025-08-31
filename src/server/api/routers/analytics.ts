@@ -1,8 +1,7 @@
 import { z } from "zod";
-import {
-  calculatePerformanceMetrics,
-  calculateFeesPaid,
-} from "@/lib/calculations";
+import { calculateEnhancedPerformanceMetrics } from "@/lib/calculations/enhanced-metrics";
+import { calculatePerformanceMetrics } from "@/lib/calculations/returns";
+import { calculateFeesPaid } from "@/lib/calculations/basic";
 import { getTrades } from "@/lib/data-store";
 import {
   createTRPCRouter,
@@ -14,7 +13,7 @@ export const analyticsRouter = createTRPCRouter({
     .query(() => {
       try {
         const trades = getTrades();
-        const metrics = calculatePerformanceMetrics(trades);
+        const metrics = calculateEnhancedPerformanceMetrics(trades);
         return metrics;
       } catch (error) {
         console.error("Error calculating performance metrics:", error);

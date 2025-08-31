@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { getGoals, saveGoal } from '@/lib/data-store';
+import { useState, useEffect, useCallback } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loadGoals, saveGoal } from '@/store/goals/goalsThunks';
 import { type InvestmentGoal } from '@/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { EnhancedCard, EnhancedCardContent, EnhancedCardDescription, EnhancedCardHeader, EnhancedCardTitle } from '@/components/ui/enhanced-card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,40 +21,64 @@ import { Label } from '@/components/ui/label';
 import { toast } from "sonner";
 
 interface GoalTrackerProps {
-  limit?: number;
+ limit?: number;
   onGoalUpdate?: () => void;
+  instanceId?: string;
 }
 
-export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
-  const [goals, setGoals] = useState<InvestmentGoal[]>([]);
-  const [loading, setLoading] = useState(true);
+interface NewGoalState {
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline: string; // Date input returns a string
+  assignedAssets: string[];
+  progress: number;
+}
+
+export function GoalTracker({ limit, onGoalUpdate, instanceId }: GoalTrackerProps) {
+  console.log('GoalTracker rendered with instanceId:', instanceId);
+  const dispatch = useAppDispatch();
+  const goals = useAppSelector((state) => state.goals.goals);
+  const goalsLoading = useAppSelector((state) => state.goals.loading);
+  
   const [showAddGoal, setShowAddGoal] = useState(false);
-  const [newGoal, setNewGoal] = useState({
+  const [newGoal, setNewGoal] = useState<NewGoalState>({
     name: '',
     targetAmount: 0,
     currentAmount: 0,
-    deadline: new Date(),
-    assignedAssets: [] as string[],
+    deadline: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
+    assignedAssets: [],
     progress: 0
   });
+  const [displayGoals, setDisplayGoals] = useState<InvestmentGoal[]>([]);
 
-  useEffect(() => {
-    loadGoals();
+  // Stable function for dialog onOpenChange handler
+  const handleDialogOpenChange = useCallback((open: boolean) => {
+    setShowAddGoal(open);
   }, []);
 
-  const loadGoals = () => {
+  // Memoized function to load goals data
+  const loadGoalsData = useCallback(async () => {
     try {
-      const goalData = getGoals();
-      setGoals(limit ? goalData.slice(0, limit) : goalData);
+      await dispatch(loadGoals()).unwrap();
     } catch (error) {
-      console.error('Error loading goals:', error);
-      toast.error("Failed to load goals", {
-        description: "There was an error loading your investment goals.",
-      });
-    } finally {
-      setLoading(false);
+      console.error("Error loading goals:", error);
     }
-  };
+  }, [dispatch]);
+
+  useEffect(() => {
+    void loadGoalsData();
+ }, [loadGoalsData]);
+
+  useEffect(() => {
+    // Update display goals when the goals data changes
+    // Convert SerializableInvestmentGoal[] to InvestmentGoal[]
+    const convertedGoals = goals.map(goal => ({
+      ...goal,
+      deadline: new Date(goal.deadline)
+    }));
+    setDisplayGoals(limit ? convertedGoals.slice(0, limit) : convertedGoals);
+  }, [goals, limit]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,7 +90,7 @@ export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
     }));
   };
 
-  const handleAddGoal = () => {
+  const handleAddGoal = async () => {
     try {
       // Basic validation
       if (!newGoal.name.trim()) {
@@ -76,26 +101,39 @@ export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
       }
 
       const progress = newGoal.targetAmount > 0 ? (newGoal.currentAmount / newGoal.targetAmount) * 100 : 0;
-      saveGoal({
+      
+      // Validate deadline
+      if (!newGoal.deadline) {
+        throw new Error("Deadline is required");
+      }
+      
+      // Convert deadline string to Date object
+      const deadlineDate = new Date(newGoal.deadline);
+      
+      // Check if the date is valid
+      if (isNaN(deadlineDate.getTime())) {
+        throw new Error("Invalid deadline date");
+      }
+      
+      const result = await dispatch(saveGoal({
         name: newGoal.name,
         targetAmount: newGoal.targetAmount,
         currentAmount: newGoal.currentAmount,
-        deadline: newGoal.deadline,
+        deadline: deadlineDate,
         progress,
         assignedAssets: newGoal.assignedAssets
-      });
+      })).unwrap();
       
       setNewGoal({
         name: '',
         targetAmount: 0,
         currentAmount: 0,
-        deadline: new Date(),
+        deadline: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
         assignedAssets: [],
         progress: 0
       });
       
       setShowAddGoal(false);
-      loadGoals();
       
       toast.success("Goal added successfully!", {
         description: `Created goal: ${newGoal.name}`,
@@ -113,31 +151,31 @@ export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
     }
   };
 
-  if (loading) {
+  if (goalsLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Investment Goals</CardTitle>
-          <CardDescription>Loading goals...</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <EnhancedCard className="rounded-xl" animateOnHover>
+        <EnhancedCardHeader>
+          <EnhancedCardTitle>Investment Goals</EnhancedCardTitle>
+          <EnhancedCardDescription>Loading goals...</EnhancedCardDescription>
+        </EnhancedCardHeader>
+        <EnhancedCardContent>
           <div className="text-center py-8">
             <p className="text-muted-foreground">Loading goals...</p>
           </div>
-        </CardContent>
-      </Card>
+        </EnhancedCardContent>
+      </EnhancedCard>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <EnhancedCard className="rounded-xl" animateOnHover>
+      <EnhancedCardHeader>
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle>{limit ? 'Recent Goals' : 'Investment Goals'}</CardTitle>
-            <CardDescription>Track your investment targets and progress</CardDescription>
+            <EnhancedCardTitle>{limit ? 'Recent Goals' : 'Investment Goals'}</EnhancedCardTitle>
+            <EnhancedCardDescription>Track your investment targets and progress</EnhancedCardDescription>
           </div>
-          <Dialog open={showAddGoal} onOpenChange={setShowAddGoal}>
+          <Dialog open={showAddGoal} onOpenChange={handleDialogOpenChange}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">Add Goal</Button>
             </DialogTrigger>
@@ -193,8 +231,8 @@ export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
                     type="date"
                     id="deadline"
                     name="deadline"
-                    value={newGoal.deadline.toISOString().split('T')[0]}
-                    onChange={(e) => setNewGoal(prev => ({ ...prev, deadline: new Date(e.target.value) }))}
+                    value={newGoal.deadline}
+                    onChange={(e) => setNewGoal(prev => ({ ...prev, deadline: e.target.value }))}
                   />
                 </div>
                 
@@ -210,16 +248,16 @@ export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
             </DialogContent>
           </Dialog>
         </div>
-      </CardHeader>
-      <CardContent>
-        {goals.length === 0 ? (
+      </EnhancedCardHeader>
+      <EnhancedCardContent>
+        {displayGoals.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-lg text-muted-foreground mb-4">No investment goals set yet.</p>
             <Button onClick={() => setShowAddGoal(true)}>Create Your First Goal</Button>
           </div>
         ) : (
           <div className="space-y-6">
-            {goals.map((goal) => (
+            {displayGoals.map((goal) => (
               <div key={goal.id} className="space-y-3">
                 <div className="flex justify-between items-start">
                   <div>
@@ -234,7 +272,7 @@ export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
                 <Progress value={Math.min(goal.progress, 100)} className="w-full" />
                 
                 <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Deadline: {goal.deadline.toLocaleDateString()}</span>
+                  <span>Deadline: {new Date(goal.deadline).toLocaleDateString()}</span>
                   {goal.assignedAssets.length > 0 && (
                     <span>{goal.assignedAssets.length} assets</span>
                   )}
@@ -243,7 +281,7 @@ export function GoalTracker({ limit, onGoalUpdate }: GoalTrackerProps) {
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </EnhancedCardContent>
+    </EnhancedCard>
   );
 }

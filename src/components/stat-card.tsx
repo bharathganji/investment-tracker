@@ -30,9 +30,9 @@ export const StatCard: React.FC<StatCardProps> = ({
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }}
     >
-      <EnhancedCard className={cn("w-full", className)} animateOnHover>
+      <EnhancedCard className={cn("w-full shadow-md hover:shadow-lg transition-shadow duration-30 rounded-xl", className)} animateOnHover>
         <EnhancedCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <EnhancedCardTitle className="text-sm font-medium">{title}</EnhancedCardTitle>
+          <EnhancedCardTitle className="text-sm font-medium text-muted-foreground">{title}</EnhancedCardTitle>
           {icon && <div className="h-4 w-4 text-muted-foreground">{icon}</div>}
         </EnhancedCardHeader>
         <EnhancedCardContent>

@@ -39,7 +39,7 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }}
     >
-      <EnhancedCard className={cn("w-full", className)} animateOnHover>
+      <EnhancedCard className={cn("w-full rounded-xl", className)} animateOnHover>
         <EnhancedCardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <EnhancedCardTitle className="text-sm font-medium">{title}</EnhancedCardTitle>

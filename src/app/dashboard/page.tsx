@@ -4,64 +4,80 @@ import { DashboardStats } from "@/app/_components/dashboard-stats";
 import { TradeHistoryTable } from "@/app/_components/trade-history-table";
 import { GoalTracker } from "@/app/_components/goal-tracker";
 import { PortfolioValueChart } from "@/app/_components/charts/portfolio-value-chart";
+import { motion } from "framer-motion";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  EnhancedCard,
+  EnhancedCardContent,
+  EnhancedCardDescription,
+  EnhancedCardHeader,
+  EnhancedCardTitle
+} from "@/components/ui/enhanced-card";
 
 export default function DashboardPage() {
   return (
-    <section className="space-y-6 p-4 md:p-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold md:text-3xl">Dashboard</h1>
-        <p className="text-muted-foreground">
+    <section className="space-y-8 p-4 md:p-6">
+      <motion.div
+        className="space-y-2"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="heading-lg">Dashboard</h1>
+        <p className="text-muted-foreground body-text">
           Overview of your investment portfolio and performance
         </p>
-      </div>
+      </motion.div>
 
       <DashboardStats />
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="space-y-6 xl:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Portfolio Performance</CardTitle>
-              <CardDescription>Your portfolio value over time</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <PortfolioValueChart />
-            </CardContent>
-          </Card>
+        <motion.div
+          className="space-y-6 xl:col-span-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <EnhancedCard className="shadow-md hover:shadow-lg transition-shadow duration-300 rounded-xl" animateOnHover>
+            <EnhancedCardHeader>
+              <EnhancedCardTitle className="heading-md">Portfolio Performance</EnhancedCardTitle>
+              <EnhancedCardDescription>Your portfolio value over time</EnhancedCardDescription>
+            </EnhancedCardHeader>
+            <EnhancedCardContent className="h-80">
+              <PortfolioValueChart standalone={false} />
+            </EnhancedCardContent>
+          </EnhancedCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
+          <EnhancedCard className="shadow-md hover:shadow-lg transition-shadow duration-300 rounded-xl" animateOnHover>
+            <EnhancedCardHeader>
+              <EnhancedCardTitle className="heading-md">Recent Activity</EnhancedCardTitle>
+              <EnhancedCardDescription>
                 Your recent trades and transactions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </EnhancedCardDescription>
+            </EnhancedCardHeader>
+            <EnhancedCardContent>
               <TradeHistoryTable limit={5} />
-            </CardContent>
-          </Card>
-        </div>
+            </EnhancedCardContent>
+          </EnhancedCard>
+        </motion.div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Investment Goals</CardTitle>
-              <CardDescription>
+        <motion.div
+          className="space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <EnhancedCard className="shadow-md hover:shadow-lg transition-shadow duration-300 rounded-xl" animateOnHover>
+            <EnhancedCardHeader>
+              <EnhancedCardTitle className="heading-md">Investment Goals</EnhancedCardTitle>
+              <EnhancedCardDescription>
                 Track your progress towards financial targets
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </EnhancedCardDescription>
+            </EnhancedCardHeader>
+            <EnhancedCardContent>
               <GoalTracker limit={3} />
-            </CardContent>
-          </Card>
-        </div>
+            </EnhancedCardContent>
+          </EnhancedCard>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { getTrades } from '@/lib/data-store';
+import { useState, useEffect, useCallback } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loadTrades, deleteTrade } from '@/store/trades/tradesThunks';
 import { type Trade } from '@/types';
+import { TradeEntryForm } from '@/app/_components/trade-entry-form';
 import {
   Table,
   TableBody,
@@ -11,9 +13,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EnhancedCard, EnhancedCardContent, EnhancedCardHeader, EnhancedCardTitle } from '@/components/ui/enhanced-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 interface TradeHistoryTableProps {
   limit?: number;
@@ -22,57 +33,133 @@ interface TradeHistoryTableProps {
 }
 
 export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHistoryTableProps) {
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const trades = useAppSelector((state) => state.trades.trades);
+  const tradesLoading = useAppSelector((state) => state.trades.loading);
+  
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [tradeToDelete, setTradeToDelete] = useState<Trade | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [tradeToEdit, setTradeToEdit] = useState<Trade | null>(null);
+  const [displayTrades, setDisplayTrades] = useState<Trade[]>([]);
 
-  useEffect(() => {
-    loadTrades();
+  // Stable functions for dialog onOpenChange handlers
+  const handleDeleteDialogOpenChange = useCallback((open: boolean) => {
+    setIsDeleteDialogOpen(open);
+    if (!open) {
+      setTradeToDelete(null);
+    }
   }, []);
 
-  const loadTrades = () => {
-    try {
-      const tradeData = getTrades();
-      const sortedTrades = tradeData.sort((a, b) => b.date.getTime() - a.date.getTime());
-      setTrades(limit ? sortedTrades.slice(0, limit) : sortedTrades);
-    } catch (error) {
-      console.error('Error loading trades:', error);
-    } finally {
-      setLoading(false);
+  const handleEditDialogOpenChange = useCallback((open: boolean) => {
+    setIsEditDialogOpen(open);
+    if (!open) {
+      setTradeToEdit(null);
     }
-  };
+  }, []);
+
+  // Load trades data on component mount
+  useEffect(() => {
+    void loadTradesData();
+  }, []); // Only run once on mount
+
+  useEffect(() => {
+    // Update display trades when the trades data changes
+    // Convert serializable trades back to Trade objects with Date instances
+    const tradesWithDates = trades.map(trade => ({
+      ...trade,
+      date: new Date(trade.date)
+    }));
+    const sortedTrades = [...tradesWithDates].sort((a, b) => b.date.getTime() - a.date.getTime());
+    setDisplayTrades(limit ? sortedTrades.slice(0, limit) : sortedTrades);
+  }, [trades, limit]);
+
+  const loadTradesData = useCallback(async () => {
+    if (tradesLoading) return; // Prevent multiple simultaneous loads
+    try {
+      await dispatch(loadTrades()).unwrap();
+    } catch (error) {
+      console.error("Error loading trades:", error);
+    }
+  }, [dispatch, tradesLoading]);
 
   const refreshData = () => {
-    loadTrades();
+    void loadTradesData();
     if (onRefresh) {
       onRefresh();
     }
   };
 
-  if (loading) {
+  const handleDeleteClick = (trade: Trade) => {
+    setTradeToDelete(trade);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (tradeToDelete) {
+      try {
+        await dispatch(deleteTrade(tradeToDelete.id)).unwrap();
+        toast.success("Trade deleted successfully!", {
+          description: `Deleted ${tradeToDelete.side} trade for ${tradeToDelete.asset}`,
+        });
+        refreshData();
+      } catch (error) {
+        toast.error("Failed to delete trade", {
+          description: "Trade not found",
+        });
+      } finally {
+        setIsDeleteDialogOpen(false);
+        // setTradeToDelete(null) is now handled in onOpenChange callback
+      }
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+    // setTradeToDelete(null) is now handled in onOpenChange callback
+  };
+
+  const handleEditClick = (trade: Trade) => {
+    setTradeToEdit(trade);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditDialogOpen(false);
+    // setTradeToEdit(null) is now handled in onOpenChange callback
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditDialogOpen(false);
+    // setTradeToEdit(null) is now handled in onOpenChange callback
+    refreshData();
+  };
+
+  if (tradesLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Trade History</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <EnhancedCard className="rounded-xl" animateOnHover>
+        <EnhancedCardHeader>
+          <EnhancedCardTitle>Trade History</EnhancedCardTitle>
+        </EnhancedCardHeader>
+        <EnhancedCardContent>
           <div className="py-8 text-center">
             <p className="text-muted-foreground">Loading trades...</p>
           </div>
-        </CardContent>
-      </Card>
+        </EnhancedCardContent>
+      </EnhancedCard>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <EnhancedCard className="rounded-xl" animateOnHover>
+      <EnhancedCardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>{limit ? 'Recent Trades' : 'Trade History'}</CardTitle>
-          {!limit && <Badge variant="secondary">{trades.length} trades</Badge>}
+          <EnhancedCardTitle>{limit ? 'Recent Trades' : 'Trade History'}</EnhancedCardTitle>
+          {!limit && <Badge variant="secondary">{displayTrades.length} trades</Badge>}
         </div>
-      </CardHeader>
-      <CardContent>
-        {trades.length === 0 ? (
+      </EnhancedCardHeader>
+      <EnhancedCardContent>
+        {displayTrades.length === 0 ? (
           <div className="py-8 text-center">
             <p className="text-muted-foreground">No trades recorded yet.</p>
           </div>
@@ -87,11 +174,11 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
                 <TableHead>Price</TableHead>
                 <TableHead>Fees</TableHead>
                 <TableHead>Total</TableHead>
-                {onTradeClick && <TableHead>Actions</TableHead>}
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {trades.map((trade) => (
+              {displayTrades.map((trade) => (
                 <TableRow key={trade.id}>
                   <TableCell className="font-medium">
                     {trade.date.toLocaleDateString()}
@@ -103,24 +190,75 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
                     </Badge>
                   </TableCell>
                   <TableCell>{trade.quantity.toLocaleString()}</TableCell>
-                  <TableCell>${trade.price.toFixed(2)}</TableCell>
+                  <TableCell>${trade.price.toFixed(4)}</TableCell>
                   <TableCell>${trade.fees.toFixed(2)}</TableCell>
                   <TableCell className="font-medium">
                     ${(trade.quantity * trade.price + trade.fees).toFixed(2)}
                   </TableCell>
-                  {onTradeClick && (
-                    <TableCell>
+                  <TableCell className="flex space-x-2">
+                    {onTradeClick && (
                       <Button variant="outline" size="sm" onClick={() => onTradeClick(trade)}>
                         View
                       </Button>
-                    </TableCell>
-                  )}
+                    )}
+                    <Button variant="outline" size="sm" onClick={() => handleEditClick(trade)}>
+                      Edit
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(trade)}>
+                      Delete
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
-      </CardContent>
-    </Card>
+
+        <Dialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this trade? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            {tradeToDelete && (
+              <div className="py-4">
+                <p className="font-medium">{tradeToDelete.asset}</p>
+                <p className="text-sm text-muted-foreground">
+                  {tradeToDelete.side.toUpperCase()} - {tradeToDelete.quantity} @ ${tradeToDelete.price.toFixed(4)}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {tradeToDelete.date.toLocaleDateString()}
+                </p>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={handleDeleteCancel}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteConfirm}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={handleEditDialogOpenChange}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Trade</DialogTitle>
+            </DialogHeader>
+            {tradeToEdit && (
+              <TradeEntryForm
+                existingTrade={tradeToEdit}
+                onCancel={handleEditCancel}
+                onSubmit={handleEditSuccess}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      </EnhancedCardContent>
+    </EnhancedCard>
   );
 }

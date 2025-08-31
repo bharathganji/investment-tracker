@@ -9,7 +9,6 @@ export const TradeSchema = z.object({
   quantity: z.number().positive(),
   price: z.number().nonnegative(),
   fees: z.number().nonnegative(),
-  tradeType: z.enum(["maker", "taker"]),
   notes: z.string().optional(),
 });
 
@@ -55,7 +54,6 @@ export const TradeFormDataSchema = z.object({
   quantity: z.number().positive("Quantity must be positive"),
   price: z.number().nonnegative("Price cannot be negative"),
   fees: z.number().nonnegative("Fees cannot be negative"),
-  tradeType: z.enum(["maker", "taker"]),
   notes: z.string().optional(),
 });
 

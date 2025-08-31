@@ -85,7 +85,7 @@ const EnhancedTableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+      "h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 text-xs md:text-sm",
       className
     )}
     {...props}
@@ -114,7 +114,7 @@ const EnhancedTableCell = React.forwardRef<
     <td
       ref={ref}
       className={cn(
-        "p-4 align-middle [&:has([role=checkbox])]:pr-0",
+        "p-2 align-middle [&:has([role=checkbox])]:pr-0 text-sm md:text-base",
         variantClasses,
         alignClasses,
         className

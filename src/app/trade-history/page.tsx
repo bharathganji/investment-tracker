@@ -3,22 +3,24 @@
 import { TradeHistoryTable } from "@/app/_components/trade-history-table";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { getTrades } from "@/lib/data-store";
+  EnhancedCard,
+  EnhancedCardContent,
+  EnhancedCardDescription,
+  EnhancedCardHeader,
+  EnhancedCardTitle,
+} from "@/components/ui/enhanced-card";
+import { useAppSelector } from '@/store/hooks';
 import { useState, useEffect } from "react";
 
 export default function TradeHistoryPage() {
+  const tradesState = useAppSelector((state) => state.trades);
+  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
+  
   const [tradesCount, setTradesCount] = useState(0);
 
   const loadTradesStats = () => {
     try {
-      const tradeData = getTrades();
-      setTradesCount(tradeData.length);
+      setTradesCount(trades.length);
     } catch (error) {
       console.error("Error loading trades stats:", error);
     }
@@ -26,7 +28,7 @@ export default function TradeHistoryPage() {
 
   useEffect(() => {
     loadTradesStats();
-  }, []);
+  }, [trades]);
 
   return (
     <section className="space-y-6 p-4 md:p-6">
@@ -37,14 +39,14 @@ export default function TradeHistoryPage() {
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
+      <EnhancedCard className="rounded-xl" animateOnHover>
+        <EnhancedCardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Trade History</CardTitle>
-              <CardDescription>
+              <EnhancedCardTitle>Trade History</EnhancedCardTitle>
+              <EnhancedCardDescription>
                 Complete record of all your trades
-              </CardDescription>
+              </EnhancedCardDescription>
             </div>
             <div className="flex items-center gap-4">
               <div>
@@ -60,11 +62,11 @@ export default function TradeHistoryPage() {
               </Button>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+        </EnhancedCardHeader>
+        <EnhancedCardContent>
           <TradeHistoryTable onRefresh={loadTradesStats} />
-        </CardContent>
-      </Card>
+        </EnhancedCardContent>
+      </EnhancedCard>
     </section>
   );
 }

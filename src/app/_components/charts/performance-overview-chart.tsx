@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTrades } from "@/lib/data-store";
+import { useAppSelector } from '@/store/hooks';
 import {
   AreaChart,
   Area,
@@ -13,24 +13,37 @@ import {
 } from "recharts";
 
 interface ChartDataPoint {
-  month: string;
+ month: string;
   pnl: number;
   cumulativePnL: number;
   trades: number;
 }
 
 export function PerformanceOverviewChart() {
+  const tradesState = useAppSelector((state) => state.trades);
+  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
+  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
+  
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadChartData();
-  }, []);
+    // Update loading state when tradesLoading changes
+    setLoading(tradesLoading);
+  }, [tradesLoading]);
+  
+  useEffect(() => {
+    // Calculate chart data when trades are loaded and trades change
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    } else if (tradesLoading) {
+      // Clear chart data when loading starts
+      setChartData([]);
+    }
+  }, [trades, tradesLoading]);
 
-  const loadChartData = () => {
+  const calculateChartData = () => {
     try {
-      const trades = getTrades();
-
       // Group trades by month and calculate cumulative P&L
       const monthlyData: Record<
         string,
@@ -38,7 +51,8 @@ export function PerformanceOverviewChart() {
       > = {};
 
       trades.forEach((trade) => {
-        const monthKey = `${trade.date.getFullYear()}-${String(trade.date.getMonth() + 1).padStart(2, "0")}`;
+        const tradeDate = new Date(trade.date);
+        const monthKey = `${tradeDate.getFullYear()}-${String(tradeDate.getMonth() + 1).padStart(2, "0")}`;
 
         if (!monthlyData[monthKey]) {
           monthlyData[monthKey] = { totalPnL: 0, tradeCount: 0 };
@@ -69,7 +83,7 @@ export function PerformanceOverviewChart() {
       setChartData(data);
       setLoading(false);
     } catch (error) {
-      console.error("Error loading chart data:", error);
+      console.error("Error calculating chart data:", error);
       setLoading(false);
     }
   };
@@ -116,7 +130,7 @@ export function PerformanceOverviewChart() {
             type="monotone"
             dataKey="cumulativePnL"
             stroke="#8884d8"
-            fill="#8884d8"
+            fill="#884d8"
             fillOpacity={0.3}
           />
         </AreaChart>

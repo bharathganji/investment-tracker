@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getPortfolioHoldings } from "@/lib/data-store";
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loadTrades } from '@/store/trades/tradesThunks';
+import { calculatePortfolioHoldings } from '@/store/portfolio/portfolioThunks';
 import { type CalculatedPortfolioHolding } from "@/types/portfolio";
 import {
   EnhancedTable,
@@ -21,17 +23,37 @@ interface PortfolioTableProps {
 }
 
 export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
-  const [holdings, setHoldings] = useState<CalculatedPortfolioHolding[]>([]);
+  const dispatch = useAppDispatch();
+  const trades = useAppSelector((state) => state.trades.trades);
+  const holdings = useAppSelector((state) => state.portfolio.holdings);
+  const portfolioLoading = useAppSelector((state) => state.portfolio.loading);
+  const tradesLoading = useAppSelector((state) => state.trades.loading);
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadHoldings();
+    void loadHoldings();
   }, []);
 
-  const loadHoldings = () => {
+  useEffect(() => {
+    // Update loading state when portfolio data changes
+    setLoading(portfolioLoading || tradesLoading);
+  }, [portfolioLoading, tradesLoading]);
+
+  const loadHoldings = async () => {
     try {
-      const holdingData = getPortfolioHoldings();
-      setHoldings(holdingData);
+      setLoading(true);
+      // Load trades first
+      const result = await dispatch(loadTrades()).unwrap();
+      
+      // Convert serializable trades back to Trade objects with Date instances
+      const tradesWithDates = result.map(trade => ({
+        ...trade,
+        date: new Date(trade.date)
+      }));
+      
+      // Calculate portfolio holdings based on trades
+      await dispatch(calculatePortfolioHoldings(tradesWithDates)).unwrap();
     } catch (error) {
       console.error("Error loading holdings:", error);
     } finally {
@@ -40,7 +62,7 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
   };
 
   const refreshData = () => {
-    loadHoldings();
+    void loadHoldings();
     if (onRefresh) {
       onRefresh();
     }
@@ -82,45 +104,49 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
               </p>
             </div>
           ) : (
-            <EnhancedTable>
-              <EnhancedTableHeader>
-                <EnhancedTableRow>
-                  <EnhancedTableHead>Asset</EnhancedTableHead>
-                  <EnhancedTableHead>Quantity</EnhancedTableHead>
-                  <EnhancedTableHead>Average Cost</EnhancedTableHead>
-                  <EnhancedTableHead>Current Value</EnhancedTableHead>
-                  <EnhancedTableHead>P&L</EnhancedTableHead>
-                  <EnhancedTableHead>P&L %</EnhancedTableHead>
-                </EnhancedTableRow>
-              </EnhancedTableHeader>
-              <EnhancedTableBody>
-                {holdings.map((holding) => (
-                  <EnhancedTableRow
-                    key={holding.asset}
-                    variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
-                  >
-                    <EnhancedTableCell className="font-medium">{holding.asset}</EnhancedTableCell>
-                    <EnhancedTableCell>{holding.quantity.toLocaleString()}</EnhancedTableCell>
-                    <EnhancedTableCell>${holding.averageCost.toFixed(2)}</EnhancedTableCell>
-                    <EnhancedTableCell className="font-medium">
-                      ${holding.currentValue.toFixed(2)}
-                    </EnhancedTableCell>
-                    <EnhancedTableCell
-                      variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
-                      align="right"
-                    >
-                      ${holding.unrealizedPnL.toFixed(2)}
-                    </EnhancedTableCell>
-                    <EnhancedTableCell
-                      variant={holding.unrealizedPnLPercentage >= 0 ? "positive" : "negative"}
-                      align="right"
-                    >
-                      {holding.unrealizedPnLPercentage.toFixed(2)}%
-                    </EnhancedTableCell>
+            <div className="overflow-x-auto">
+              <EnhancedTable>
+                <EnhancedTableHeader>
+                  <EnhancedTableRow>
+                    <EnhancedTableHead className="whitespace-nowrap">Asset</EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">Quantity</EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">Avg Cost</EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">Current Value</EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">P&L</EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">P&L %</EnhancedTableHead>
                   </EnhancedTableRow>
-                ))}
-              </EnhancedTableBody>
-            </EnhancedTable>
+                </EnhancedTableHeader>
+                <EnhancedTableBody>
+                  {holdings.map((holding) => (
+                    <EnhancedTableRow
+                      key={holding.asset}
+                      variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
+                    >
+                      <EnhancedTableCell className="font-medium whitespace-nowrap">{holding.asset}</EnhancedTableCell>
+                      <EnhancedTableCell className="whitespace-nowrap">{holding.quantity.toLocaleString()}</EnhancedTableCell>
+                      <EnhancedTableCell className="whitespace-nowrap">${holding.averageCost.toFixed(2)}</EnhancedTableCell>
+                      <EnhancedTableCell className="font-medium whitespace-nowrap">
+                        ${holding.currentValue.toFixed(2)}
+                      </EnhancedTableCell>
+                      <EnhancedTableCell
+                        variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
+                        align="right"
+                        className="whitespace-nowrap"
+                      >
+                        ${holding.unrealizedPnL.toFixed(2)}
+                      </EnhancedTableCell>
+                      <EnhancedTableCell
+                        variant={holding.unrealizedPnLPercentage >= 0 ? "positive" : "negative"}
+                        align="right"
+                        className="whitespace-nowrap"
+                      >
+                        {holding.unrealizedPnLPercentage.toFixed(2)}%
+                      </EnhancedTableCell>
+                    </EnhancedTableRow>
+                  ))}
+                </EnhancedTableBody>
+              </EnhancedTable>
+            </div>
           )}
         </EnhancedCardContent>
       </EnhancedCard>

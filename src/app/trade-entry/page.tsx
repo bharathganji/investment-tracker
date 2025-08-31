@@ -1,28 +1,10 @@
-"use client";
-
-import { TradeForm } from "@/app/_components/trade-form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { TradeEntryForm } from "@/app/_components/trade-entry-form";
 
 export default function TradeEntryPage() {
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Add New Trade</CardTitle>
-          <CardDescription>
-            Record a new trade with details and auto-calculated fees
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TradeForm />
-        </CardContent>
-      </Card>
+      <h1 className="heading-lg mb-2">Add New Trade Record</h1>
+      <p className="text-muted-foreground mb-6">Record a new trade with details and fees</p> <TradeEntryForm />
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { 
+import {
   Card as BaseCard,
   CardHeader as BaseCardHeader,
   CardFooter as BaseCardFooter,
   CardTitle as BaseCardTitle,
   CardDescription as BaseCardDescription,
-  CardContent as BaseCardContent 
+  CardContent as BaseCardContent
 } from "@/components/ui/card";
 
 interface EnhancedCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -19,10 +19,10 @@ const EnhancedCard = React.forwardRef<
   HTMLDivElement,
   EnhancedCardProps
 >(({ className, variant = "default", animateOnHover = false, ...props }, ref) => {
-  const baseClasses = "rounded-xl transition-all duration-200";
-  const shadowClasses = "shadow-md";
-  const hoverClasses = animateOnHover ? "hover:shadow-lg hover:-translate-y-0.5" : "";
-  const variantClasses = variant === "enhanced" ? "border-0 bg-card/80 backdrop-blur-sm" : "";
+  const baseClasses = "rounded-xl transition-all duration-300";
+  const shadowClasses = "shadow-md hover:shadow-lg";
+  const hoverClasses = animateOnHover ? "hover:-translate-y-1" : "";
+  const variantClasses = variant === "enhanced" ? "border-0 bg-card/90 backdrop-blur-sm" : "";
   
   const cardContent = (
     <BaseCard

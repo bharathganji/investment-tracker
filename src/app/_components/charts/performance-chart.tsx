@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { getTrades } from '@/lib/data-store';
-import { calculatePerformanceMetrics } from '@/lib/calculations';
+import { useAppSelector } from '@/store/hooks';
+import { calculatePerformanceMetrics } from '@/lib/calculations/returns';
+import { fromSerializableTrade } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -12,17 +13,28 @@ interface PerformanceDataPoint {
 }
 
 export function PerformanceChart() {
+  const tradesState = useAppSelector((state) => state.trades);
+  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
+  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
+  
   const [chartData, setChartData] = useState<PerformanceDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadChartData();
-  }, []);
+    // Update loading state when trades data changes
+    setLoading(tradesLoading);
+    
+    // Calculate chart data when trades are loaded
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    }
+  }, [trades, tradesLoading]);
 
-  const loadChartData = () => {
+  const calculateChartData = () => {
     try {
-      const trades = getTrades();
-      const performance = calculatePerformanceMetrics(trades);
+      // Convert SerializableTrade[] to Trade[]
+      const convertedTrades = trades.map(fromSerializableTrade);
+      const performance = calculatePerformanceMetrics(convertedTrades);
       
       const data: PerformanceDataPoint[] = [
         { metric: 'Total Trades', value: performance.totalTrades },
@@ -35,7 +47,7 @@ export function PerformanceChart() {
       setChartData(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error loading chart data:', error);
+      console.error('Error calculating chart data:', error);
       setLoading(false);
     }
   };

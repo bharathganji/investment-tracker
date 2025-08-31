@@ -1,347 +1,152 @@
-# 🎨 UI Enhancement Technical Implementation Plan
+# UI Enhancement Technical Plan
 
-This document outlines the technical approach for implementing the UI/UX enhancements while maintaining SEO integrity and accessibility compliance.
+This document provides a detailed technical plan for the UI enhancements implemented in the investment tracker application.
 
-## 🔍 Current State Analysis
+## 1. Trade Deletion Functionality
 
-### Color Scheme Analysis
-**Current Implementation:**
-- Uses CSS variables with HSL color values
-- Light mode: `--background: 0 0% 100%` (white), `--foreground: 0 0% 3.9%` (dark gray)
-- Dark mode: `--background: 0 0% 3.9%` (very dark), `--foreground: 0 0% 98%` (near white)
-- Semantic colors exist but are basic (primary, secondary, destructive)
+### Implementation Details
 
-**Gaps with Enhancement Guide:**
-- Missing specific semantic colors for financial data (profit=green, loss=red)
-- No brand accent gradient implementation
-- Secondary button styles need enhancement
+#### Component: TradeHistoryTable
+- Added `deleteTrade` import from `@/lib/data-store`
+- Added `Dialog` components from `@/components/ui/dialog`
+- Added state variables:
+  - `isDeleteDialogOpen` (boolean) - Controls visibility of delete confirmation dialog
+  - `tradeToDelete` (Trade | null) - Stores the trade to be deleted
+- Added functions:
+  - `handleDeleteClick` - Opens the delete confirmation dialog
+  - `handleDeleteConfirm` - Deletes the trade and updates the table
+  - `handleDeleteCancel` - Closes the delete confirmation dialog
+- Added a delete button to each table row
+- Added a confirmation dialog component
 
-### Typography Analysis
-**Current Implementation:**
-- Uses Geist font family (`var(--font-geist-sans)`)
-- Basic font sizing hierarchy
-- No specific monospace font for financial numbers
+#### Data Layer: data-store.ts
+- The `deleteTrade` function was already implemented and used
 
-**Gaps with Enhancement Guide:**
-- Missing modern sans-serif fonts for headings (Inter/DM Sans)
-- No monospace font (Roboto Mono) for financial data
-- Inconsistent typography hierarchy
+#### UI/UX Considerations
+- Confirmation dialog prevents accidental deletions
+- Toast notifications provide feedback on success/failure
+- Loading states handle async operations
+- Responsive design maintains usability on all devices
 
-### Layout & Alignment Analysis
-**Current Implementation:**
-- Uses Tailwind grid system
-- Basic card components with standard padding
-- Mobile-responsive but basic stacking
+## 2. Inline Editing Functionality
 
-**Gaps with Enhancement Guide:**
-- Cards need rounded corners (`xl`) and soft shadows (`shadow-md`)
-- Dashboard needs improved grid layouts
-- Tables need better alignment and sticky headers
+### Implementation Details
 
-### Animation Analysis
-**Current Implementation:**
-- Framer Motion integrated
-- Basic hover effects on stat cards (`y: -4`)
-- Page transitions with AnimatePresence
-- Count-up animations using useMotionValue
+#### Component: TradeEntryForm
+- Added `updateTrade` import from `@/lib/data-store`
+- Added `existingTrade` prop to support editing mode
+- Modified form initialization to use existing trade data when in edit mode
+- Modified `handleSubmit` to use `updateTrade` when editing
+- Updated form title and button text based on mode (add/edit)
+- Added loading states for submission
 
-**Gaps with Enhancement Guide:**
-- Missing staggered animations for multiple cards
-- Limited chart animations
-- Navigation animations need enhancement
+#### Component: TradeHistoryTable
+- Added `TradeEntryForm` import
+- Added state variables:
+  - `isEditDialogOpen` (boolean) - Controls visibility of edit dialog
+  - `tradeToEdit` (Trade | null) - Stores the trade to be edited
+- Added functions:
+  - `handleEditClick` - Opens the edit dialog with trade data
+  - `handleEditCancel` - Closes the edit dialog
+  - `handleEditSuccess` - Closes the edit dialog and refreshes the table
+- Added an edit button to each table row
+- Added an edit dialog component that uses TradeEntryForm
 
-## 🏗️ Technical Implementation Plan
+#### Data Layer: data-store.ts
+- The `updateTrade` function was already implemented and used
 
-### Phase 1: Color System Enhancement
+#### UI/UX Considerations
+- Modal dialog provides focused editing experience
+- Form validation maintains data integrity
+- Toast notifications provide feedback on success/failure
+- Loading states handle async operations
+- Responsive design maintains usability on all devices
 
-#### 1.1 Update CSS Variables
-```css
-/* Light Mode */
-:root {
-  --background: 240 0% 98%; /* #f9fafb */
-  --foreground: 240 0% 7%;   /* #111827 */
-  --profit: 142 76% 36%;     /* #10b981 */
-  --loss: 355 70% 47%;       /* #ef4444 */
-  --info: 217 91% 60%;       /* #3b82f6 */
-  --brand-gradient-start: 262 83% 58%; /* Purple */
-  --brand-gradient-end: 231 98% 64%;   /* Indigo */
-}
+## 3. Comprehensive Analytics
 
-/* Dark Mode */
-.dark {
-  --background: 240 0% 7%;   /* #111827 */
-  --foreground: 240 0% 98%;  /* #f9fafb */
-  --profit: 142 76% 36%;     /* #10b981 */
-  --loss: 355 70% 47%;       /* #ef4444 */
-  --info: 217 91% 60%;       /* #3b82f6 */
-  --brand-gradient-start: 262 83% 58%;
-  --brand-gradient-end: 231 98% 64%;
-}
-```
+### Implementation Details
 
-#### 1.2 Implement Brand Gradient
-```css
-.brand-gradient {
-  @apply bg-gradient-to-r from-purple-500 to-indigo-500;
-}
-```
+#### Library: calculations.ts
+- Added `calculateWinLossRatio` function
+- Added `calculateAverageWin` function
+- Added `calculateAverageLoss` function
+- Added `calculateProfitFactor` function
+- Added `calculateWinRate` function
+- Added `calculateMaxDrawdown` function
+- Added `calculateEnhancedPerformanceMetrics` function that combines all metrics
 
-#### 1.3 Enhanced Semantic Colors
-```typescript
-// src/lib/utils.ts
-export const financialColors = {
-  profit: "text-green-500 dark:text-green-400",
-  loss: "text-red-500 dark:text-red-400",
-  info: "text-blue-500 dark:text-blue-400",
-  neutral: "text-gray-500 dark:text-gray-400"
-};
-```
+#### Component: AnalyticsPage
+- Replaced `calculatePerformanceMetrics` import with `calculateEnhancedPerformanceMetrics`
+- Updated metrics state to include new metrics:
+  - `winLossRatio`
+  - `averageWin`
+  - `averageLoss`
+  - `profitFactor`
+  - `winRate`
+  - `maxDrawdown`
+- Updated the metrics display section to include cards for new metrics
+- Maintained existing styling and color coding for positive/negative values
 
-### Phase 2: Typography Enhancement
+#### UI/UX Considerations
+- Color coding (green for positive, red for negative) maintains consistency
+- Grid layout adapts to different screen sizes
+- Metric cards provide clear, concise information
+- Responsive design maintains usability on all devices
 
-#### 2.1 Font Configuration
-Update `tailwind.config.ts`:
-```typescript
-fontFamily: {
-  sans: ["var(--font-inter)", "var(--font-geist-sans)", ...fontFamily.sans],
-  heading: ["var(--font-dm-sans)", "var(--font-geist-sans)", ...fontFamily.sans],
-  mono: ["var(--font-roboto-mono)", "monospace"]
-}
-```
+## 4. Portfolio Page Optimization
 
-#### 2.2 Typography Classes
-```css
-/* src/styles/globals.css */
-.financial-number {
-  @apply font-mono text-lg font-semibold;
-}
+### Implementation Details
 
-.heading-xl {
-  @apply text-3xl font-bold tracking-tight;
-}
+#### Component: PortfolioPage
+- Changed grid layout from `xl:grid-cols-2` to `md:grid-cols-2` for earlier breakpoint
+- Modified portfolio overview card layout to use grid instead of flex for better responsiveness
+- Adjusted text alignment for better mobile display
 
-.heading-lg {
-  @apply text-2xl font-bold tracking-tight;
-}
+#### Component: PortfolioTable
+- Wrapped table in `overflow-x-auto` div for horizontal scrolling on small screens
+- Added `whitespace-nowrap` to table headers and cells to prevent wrapping
+- Shortened "Average Cost" header to "Avg Cost" to save space
+- Maintained existing styling and color coding
 
-.body-text {
-  @apply text-base leading-relaxed;
-}
+#### Component: EnhancedTable (UI Component)
+- Reduced cell padding from `p-4` to `p-2` on mobile
+- Added responsive text sizing (`text-sm` on mobile, `text-base` on desktop)
+- Reduced header height from `h-12` to `h-10` on mobile
+- Added responsive text sizing for headers (`text-xs` on mobile, `text-sm` on desktop)
 
-.muted-label {
-  @apply text-sm text-muted-foreground;
-}
-```
+#### UI/UX Considerations
+- Horizontal scrolling prevents layout breaking on small screens
+- Whitespace management ensures content readability
+- Responsive text sizing improves readability across devices
+- Consistent styling maintains visual coherence
 
-### Phase 3: Layout & Alignment Enhancement
+## 5. Responsive Design Testing
 
-#### 3.1 Enhanced Card Component
-```typescript
-// src/components/ui/card.tsx
-interface EnhancedCardProps extends CardProps {
-  variant?: 'default' | 'enhanced';
-}
+### Breakpoints to Test
 
-export const EnhancedCard: React.FC<EnhancedCardProps> = ({ 
-  className, 
-  variant = 'default',
-  ...props 
-}) => {
-  const baseClasses = "rounded-xl shadow-md transition-all duration-200";
-  const variantClasses = variant === 'enhanced' 
-    ? "hover:shadow-lg hover:-translate-y-0.5" 
-    : "";
-  
-  return (
-    <Card 
-      className={cn(baseClasses, variantClasses, className)} 
-      {...props} 
-    />
-  );
-};
-```
+1. **Mobile (up to 768px)**
+   - Vertical stacking of elements
+   - Touch-friendly button sizes
+   - Horizontal scrolling for tables
+   - Appropriate font sizes
 
-#### 3.2 Dashboard Grid Layout
-```typescript
-// src/app/dashboard/page.tsx
-<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-  {/* Cards with enhanced animations */}
-</div>
-```
+2. **Tablet (768px to 1024px)**
+   - Two-column layouts where appropriate
+   - Balanced use of screen real estate
+   - Properly sized interactive elements
 
-#### 3.3 Table Enhancements
-```css
-/* Enhanced table styling */
-.enhanced-table {
-  @apply border-collapse w-full;
-}
+3. **Desktop (1024px and above)**
+   - Full utilization of available space
+   - Multi-column layouts
+   - Enhanced data visualization
 
-.enhanced-table th {
-  @apply sticky top-0 bg-background z-10 text-left p-4 font-semibold border-b;
-}
+### Testing Checklist
 
-.enhanced-table td {
-  @apply p-4 border-b;
-}
-
-.enhanced-table td.text-right {
-  @apply text-right;
-}
-
-.enhanced-table tr:nth-child(even) {
-  @apply bg-muted/50;
-}
-```
-
-### Phase 4: Animation Enhancement
-
-#### 4.1 Staggered Card Animations
-```typescript
-// src/components/animated-card-grid.tsx
-import { motion, stagger, useAnimate } from "framer-motion";
-
-export const AnimatedCardGrid: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [scope, animate] = useAnimate();
-  
-  useEffect(() => {
-    animate(
-      "div",
-      { opacity: 1, y: 0 },
-      { delay: stagger(0.1), duration: 0.5 }
-    );
-  }, [animate]);
-
-  return (
-    <div ref={scope} className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-      {React.Children.map(children, (child) => (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
-        >
-          {child}
-        </motion.div>
-      ))}
-    </div>
-  );
-};
-```
-
-#### 4.2 Enhanced Chart Animations
-```typescript
-// src/components/animated-chart.tsx
-<motion.div
-  initial={{ opacity: 0, scaleY: 0 }}
-  animate={{ opacity: 1, scaleY: 1 }}
-  transition={{ duration: 0.8, ease: "easeOut" }}
->
-  <AreaChart>
-    <motion.area
-      initial={{ pathLength: 0 }}
-      animate={{ pathLength: 1 }}
-      transition={{ duration: 1, ease: "easeInOut" }}
-    />
-  </AreaChart>
-</motion.div>
-```
-
-#### 4.3 Navigation Animations
-```typescript
-// src/components/mobile-nav.tsx
-<motion.div
-  initial={{ opacity: 0, scale: 0.8 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{ 
-    type: "spring", 
-    stiffness: 300, 
-    damping: 25,
-    delay: 0.2 
-  }}
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.95 }}
->
-  <Button variant="ghost">Nav Item</Button>
-</motion.div>
-```
-
-## 📋 Implementation Checklist Mapping
-
-### Foundation Phase
-- [ ] Update CSS variables with new color scheme
-- [ ] Configure font families in Tailwind config
-- [ ] Create enhanced card component with rounded corners and shadows
-- [ ] Implement brand gradient utilities
-- [ ] Add semantic financial color classes
-
-### Structure Phase
-- [ ] Create typography utility classes
-- [ ] Implement dashboard grid layouts
-- [ ] Enhance table components with proper alignment
-- [ ] Add card hover animations and transitions
-- [ ] Implement count-up animations for financial numbers
-
-### Polish Phase
-- [ ] Add staggered animations for card grids
-- [ ] Enhance chart drawing animations
-- [ ] Implement navigation animations
-- [ ] Add progress bar fill animations
-- [ ] Conduct accessibility and SEO review
-
-## 🛡️ SEO & Accessibility Compliance
-
-### Semantic HTML Requirements
-- Maintain proper heading hierarchy (single H1 per page)
-- Use semantic table elements (`<thead>`, `<tbody>`, `<th>`, `<td>`)
-- Ensure all content exists in DOM before animations
-- Add appropriate `aria-labels` for interactive elements
-
-### Accessibility Requirements
-- Maintain color contrast ratios (WCAG AA minimum)
-- Ensure animations respect `prefers-reduced-motion`
-- Provide text alternatives for visual elements
-- Maintain keyboard navigation support
-
-### SEO Requirements
-- Keep all text content as actual text (not images)
-- Maintain proper document structure
-- Ensure fast loading times with optimized animations
-- Preserve semantic meaning in all markup
-
-## 🚀 Deployment Strategy
-
-### 1. Development Branch
-- Create `ui-enhancement` branch
-- Implement changes incrementally
-- Test each phase thoroughly
-
-### 2. Testing
-- Cross-browser compatibility testing
-- Mobile responsiveness verification
-- Performance impact assessment
-- Accessibility audit
-
-### 3. Deployment
-- Deploy to staging environment
-- Conduct user acceptance testing
-- Monitor performance metrics
-- Gradual rollout to production
-
-## 📊 Success Metrics
-
-### Performance
-- Maintain Core Web Vitals scores
-- Ensure smooth 60fps animations
-- Optimize bundle size impact
-
-### User Experience
-- Improved user engagement metrics
-- Reduced bounce rates
-- Positive user feedback
-
-### Technical
-- Zero accessibility violations
-- Valid HTML semantic structure
-- Proper SEO implementation
-
----
-
-This technical plan provides a comprehensive roadmap for implementing the UI enhancements while maintaining the application's performance, accessibility, and SEO integrity.
+- [ ] Trade deletion functionality works on all devices
+- [ ] Inline editing functionality works on all devices
+- [ ] All analytics metrics display correctly
+- [ ] Portfolio page layout adapts to different screen sizes
+- [ ] Tables are readable and usable on all devices
+- [ ] Charts resize appropriately
+- [ ] Navigation is accessible on all devices
+- [ ] Form elements are appropriately sized for touch interaction

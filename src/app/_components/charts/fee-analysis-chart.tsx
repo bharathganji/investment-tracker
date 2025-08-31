@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTrades } from "@/lib/data-store";
+import { useAppSelector } from '@/store/hooks';
 import {
   BarChart,
   Bar,
@@ -15,40 +15,41 @@ import {
 
 interface FeeDataPoint {
   month: string;
-  makerFees: number;
-  takerFees: number;
   totalFees: number;
 }
 
 export function FeeAnalysisChart() {
+  const tradesState = useAppSelector((state) => state.trades);
+  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
+  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
+  
   const [chartData, setChartData] = useState<FeeDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadChartData();
-  }, []);
+    // Update loading state when trades data changes
+    setLoading(tradesLoading);
+    
+    // Calculate chart data when trades are loaded
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    }
+  }, [trades, tradesLoading]);
 
-  const loadChartData = () => {
+  const calculateChartData = () => {
     try {
-      const trades = getTrades();
-
-      // Group trades by month and calculate fees by type
+      // Group trades by month and calculate total fees
       const monthlyData: Record<
         string,
-        { makerFees: number; takerFees: number; totalFees: number }
+        { totalFees: number }
       > = {};
 
       trades.forEach((trade) => {
-        const monthKey = `${trade.date.getFullYear()}-${String(trade.date.getMonth() + 1).padStart(2, "0")}`;
+        const tradeDate = new Date(trade.date);
+        const monthKey = `${tradeDate.getFullYear()}-${String(tradeDate.getMonth() + 1).padStart(2, "0")}`;
 
         if (!monthlyData[monthKey]) {
-          monthlyData[monthKey] = { makerFees: 0, takerFees: 0, totalFees: 0 };
-        }
-
-        if (trade.tradeType === "maker") {
-          monthlyData[monthKey].makerFees += trade.fees;
-        } else {
-          monthlyData[monthKey].takerFees += trade.fees;
+          monthlyData[monthKey] = { totalFees: 0 };
         }
 
         monthlyData[monthKey].totalFees += trade.fees;
@@ -58,8 +59,6 @@ export function FeeAnalysisChart() {
       const data: FeeDataPoint[] = Object.entries(monthlyData)
         .map(([month, fees]) => ({
           month,
-          makerFees: parseFloat(fees.makerFees.toFixed(2)),
-          takerFees: parseFloat(fees.takerFees.toFixed(2)),
           totalFees: parseFloat(fees.totalFees.toFixed(2)),
         }))
         .sort((a, b) => a.month.localeCompare(b.month));
@@ -67,7 +66,7 @@ export function FeeAnalysisChart() {
       setChartData(data);
       setLoading(false);
     } catch (error) {
-      console.error("Error loading fee chart data:", error);
+      console.error("Error calculating fee chart data:", error);
       setLoading(false);
     }
   };
@@ -109,16 +108,9 @@ export function FeeAnalysisChart() {
           />
           <Legend />
           <Bar
-            dataKey="makerFees"
-            stackId="a"
+            dataKey="totalFees"
             fill="#8884d8"
-            name="Maker Fees"
-          />
-          <Bar
-            dataKey="takerFees"
-            stackId="a"
-            fill="#82ca9d"
-            name="Taker Fees"
+            name="Total Fees"
           />
         </BarChart>
       </ResponsiveContainer>

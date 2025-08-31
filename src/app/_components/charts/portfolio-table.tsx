@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { getPortfolioHoldings } from '@/lib/data-store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loadTrades } from '@/store/trades/tradesThunks';
+import { calculatePortfolioHoldings } from '@/store/portfolio/portfolioThunks';
 import { CalculatedPortfolioHolding } from '@/types/portfolio';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,20 +28,36 @@ interface PortfolioTableProps {
 }
 
 export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
-  const [holdings, setHoldings] = useState<CalculatedPortfolioHolding[]>([]);
+  const dispatch = useAppDispatch();
+  const tradesState = useAppSelector((state) => state.trades);
+  const portfolioState = useAppSelector((state) => state.portfolio);
+  
+  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
+  const holdings = portfolioState && 'holdings' in portfolioState ? portfolioState.holdings : [];
+  const portfolioLoading = portfolioState && 'loading' in portfolioState ? portfolioState.loading : false;
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadHoldings();
-  }, []);
+ }, []);
+
+  useEffect(() => {
+    // Update loading state when portfolio data changes
+    setLoading(portfolioLoading);
+  }, [portfolioLoading]);
 
   const loadHoldings = () => {
     try {
-      const holdingData = getPortfolioHoldings();
-      setHoldings(holdingData);
+      void dispatch(loadTrades())
+        .then((result) => {
+          if (loadTrades.fulfilled.match(result)) {
+            // Calculate portfolio holdings based on trades
+            void dispatch(calculatePortfolioHoldings(result.payload));
+          }
+        });
     } catch (error) {
-      console.error('Error loading holdings:', error);
-    } finally {
+      console.error("Error loading holdings:", error);
       setLoading(false);
     }
   };

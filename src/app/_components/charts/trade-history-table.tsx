@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { getTrades } from '@/lib/data-store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loadTrades } from '@/store/trades/tradesThunks';
 import { Trade } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,33 +29,40 @@ interface TradeHistoryTableProps {
 }
 
 export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHistoryTableProps) {
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const tradesState = useAppSelector((state) => state.trades);
+  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
+  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
+  
+  const [displayTrades, setDisplayTrades] = useState<Trade[]>([]);
 
   useEffect(() => {
-    loadTrades();
+    loadTradesData();
   }, []);
 
-  const loadTrades = () => {
-    try {
-      const tradeData = getTrades();
-      const sortedTrades = tradeData.sort((a, b) => b.date.getTime() - a.date.getTime());
-      setTrades(limit ? sortedTrades.slice(0, limit) : sortedTrades);
-    } catch (error) {
-      console.error('Error loading trades:', error);
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    // Update display trades when the trades data changes
+    // Convert serializable trades back to Trade objects with Date instances
+    const tradesWithDates = trades.map(trade => ({
+      ...trade,
+      date: new Date(trade.date)
+    }));
+    const sortedTrades = [...tradesWithDates].sort((a, b) => b.date.getTime() - a.date.getTime());
+    setDisplayTrades(limit ? sortedTrades.slice(0, limit) : sortedTrades);
+  }, [trades, limit]);
+
+  const loadTradesData = () => {
+    void dispatch(loadTrades());
   };
 
   const refreshData = () => {
-    loadTrades();
+    loadTradesData();
     if (onRefresh) {
       onRefresh();
     }
   };
 
-  if (loading) {
+  if (tradesLoading) {
     return (
       <Card>
         <CardHeader>
@@ -77,10 +85,10 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
           <div>
             <CardTitle>{limit ? 'Recent Trades' : 'Trade History'}</CardTitle>
             <CardDescription>
-              {trades.length} {trades.length === 1 ? 'trade' : 'trades'}
+              {displayTrades.length} {displayTrades.length === 1 ? 'trade' : 'trades'}
             </CardDescription>
           </div>
-          {trades.length === 0 && !limit && (
+          {displayTrades.length === 0 && !limit && (
             <Button asChild>
               <a href="/trade-entry">Add Your First Trade</a>
             </Button>
@@ -88,7 +96,7 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
         </div>
       </CardHeader>
       <CardContent>
-        {trades.length === 0 ? (
+        {displayTrades.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-lg text-muted-foreground mb-4">No trades recorded yet.</p>
             <Button asChild>
@@ -110,7 +118,7 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
               </TableRow>
             </TableHeader>
             <TableBody>
-              {trades.map((trade) => (
+              {displayTrades.map((trade) => (
                 <TableRow key={trade.id}>
                   <TableCell className="font-medium">
                     {trade.date.toLocaleDateString()}

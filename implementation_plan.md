@@ -22,7 +22,6 @@ interface Trade {
   quantity: number;
   price: number;
   fees: number;
-  tradeType: "maker" | "taker";
   notes?: string;
 }
 

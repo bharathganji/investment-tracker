@@ -10,10 +10,11 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { MainLayout } from "@/app/_components/main-layout";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
+import StoreProvider from "@/store/provider";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
+ variable: "--font-inter",
 });
 
 const dmSans = DM_Sans({
@@ -44,10 +45,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TRPCReactProvider>
-            <MainLayout>{children}</MainLayout>
-            <Toaster />
-          </TRPCReactProvider>
+          <StoreProvider>
+            <TRPCReactProvider>
+              <MainLayout>{children}</MainLayout>
+              <Toaster />
+            </TRPCReactProvider>
+          </StoreProvider>
         </ThemeProvider>
       </body>
     </html>
