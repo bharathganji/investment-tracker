@@ -1,5 +1,3 @@
-import { PortfolioHolding } from "@/types";
-
 export interface CalculatedPortfolioHolding {
   asset: string;
   quantity: number;

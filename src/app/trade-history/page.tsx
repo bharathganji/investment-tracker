@@ -9,13 +9,14 @@ import {
   EnhancedCardHeader,
   EnhancedCardTitle,
 } from "@/components/ui/enhanced-card";
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector } from "@/store/hooks";
 import { useState, useEffect } from "react";
 
 export default function TradeHistoryPage() {
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+
   const [tradesCount, setTradesCount] = useState(0);
 
   const loadTradesStats = () => {
@@ -28,7 +29,7 @@ export default function TradeHistoryPage() {
 
   useEffect(() => {
     loadTradesStats();
-  }, [trades]);
+  }, [trades, loadTradesStats]);
 
   return (
     <section className="space-y-6 p-4 md:p-6">
@@ -41,7 +42,7 @@ export default function TradeHistoryPage() {
 
       <EnhancedCard className="rounded-xl" animateOnHover>
         <EnhancedCardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <EnhancedCardTitle>Trade History</EnhancedCardTitle>
               <EnhancedCardDescription>
@@ -50,12 +51,10 @@ export default function TradeHistoryPage() {
             </div>
             <div className="flex items-center gap-4">
               <div>
-                <p className="text-sm text-muted-foreground text-right">
+                <p className="text-right text-sm text-muted-foreground">
                   Total Trades
                 </p>
-                <p className="text-2xl font-bold text-right">
-                  {tradesCount}
-                </p>
+                <p className="text-right text-2xl font-bold">{tradesCount}</p>
               </div>
               <Button asChild>
                 <a href="/trade-entry">Add New Trade</a>

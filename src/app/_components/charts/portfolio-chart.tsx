@@ -95,6 +95,16 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
     }
   };
 
+  useEffect(() => {
+    // Update loading state when trades data changes
+    setLoading(tradesLoading);
+
+    // Calculate chart data when trades are loaded
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    }
+  }, [trades, tradesLoading, calculateChartData]);
+
   if (loading) {
     if (standalone) {
       return (

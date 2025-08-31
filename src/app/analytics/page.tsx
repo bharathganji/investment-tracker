@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useAppSelector } from '@/store/hooks';
+import { useState, useEffect, useCallback } from "react";
+import { useAppSelector } from "@/store/hooks";
 import { fromSerializableTrade } from "@/lib/utils";
 import { calculateEnhancedPerformanceMetrics } from "@/lib/calculations/enhanced-metrics";
-import { calculateFeesPaid } from "@/lib/calculations/basic";
 import {
   EnhancedCard,
   EnhancedCardContent,
@@ -21,9 +20,11 @@ import { GoalInsightsSummary } from "./_components/goal-insights-summary";
 
 export default function AnalyticsPage() {
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const tradesLoading =
+    tradesState && "loading" in tradesState ? tradesState.loading : false;
+
   const [metrics, setMetrics] = useState({
     totalTrades: 0,
     totalProfitLoss: 0,
@@ -50,7 +51,6 @@ export default function AnalyticsPage() {
       const tradesWithDates = trades.map(fromSerializableTrade);
       const performance = calculateEnhancedPerformanceMetrics(tradesWithDates);
 
-
       setMetrics({
         totalTrades: performance.totalTrades,
         totalProfitLoss: performance.totalProfitLoss,
@@ -74,12 +74,12 @@ export default function AnalyticsPage() {
   useEffect(() => {
     // Update loading state when trades data changes
     setLoading(tradesLoading);
-    
+
     // Calculate analytics data when trades are loaded
     if (!tradesLoading && trades.length > 0) {
       calculateAnalyticsData();
     }
-  }, [tradesLoading, calculateAnalyticsData]);
+  }, [tradesLoading, calculateAnalyticsData, trades.length]);
 
   if (loading) {
     return (
@@ -87,7 +87,9 @@ export default function AnalyticsPage() {
         <EnhancedCard className="rounded-xl" animateOnHover>
           <EnhancedCardHeader>
             <EnhancedCardTitle>Analytics & Reports</EnhancedCardTitle>
-            <EnhancedCardDescription>Loading analytics...</EnhancedCardDescription>
+            <EnhancedCardDescription>
+              Loading analytics...
+            </EnhancedCardDescription>
           </EnhancedCardHeader>
           <EnhancedCardContent>
             <div className="py-8 text-center">Loading analytics...</div>

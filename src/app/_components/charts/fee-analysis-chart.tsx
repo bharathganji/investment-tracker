@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector } from "@/store/hooks";
 import {
   BarChart,
   Bar,
@@ -20,29 +20,18 @@ interface FeeDataPoint {
 
 export function FeeAnalysisChart() {
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const tradesLoading =
+    tradesState && "loading" in tradesState ? tradesState.loading : false;
+
   const [chartData, setChartData] = useState<FeeDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Update loading state when trades data changes
-    setLoading(tradesLoading);
-    
-    // Calculate chart data when trades are loaded
-    if (!tradesLoading && trades.length > 0) {
-      calculateChartData();
-    }
-  }, [trades, tradesLoading]);
 
   const calculateChartData = () => {
     try {
       // Group trades by month and calculate total fees
-      const monthlyData: Record<
-        string,
-        { totalFees: number }
-      > = {};
+      const monthlyData: Record<string, { totalFees: number }> = {};
 
       trades.forEach((trade) => {
         const tradeDate = new Date(trade.date);
@@ -70,6 +59,16 @@ export function FeeAnalysisChart() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Update loading state when trades data changes
+    setLoading(tradesLoading);
+
+    // Calculate chart data when trades are loaded
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    }
+  }, [trades, tradesLoading, calculateChartData]);
 
   if (loading) {
     return (
@@ -107,11 +106,7 @@ export function FeeAnalysisChart() {
             labelFormatter={(label) => `Month: ${label}`}
           />
           <Legend />
-          <Bar
-            dataKey="totalFees"
-            fill="#8884d8"
-            name="Total Fees"
-          />
+          <Bar dataKey="totalFees" fill="#8884d8" name="Total Fees" />
         </BarChart>
       </ResponsiveContainer>
     </div>

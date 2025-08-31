@@ -1,12 +1,14 @@
-import { configureStore } from '@reduxjs/toolkit';
-import tradesReducer from './trades/tradesSlice';
-import goalsReducer from './goals/goalsSlice';
-import portfolioReducer from './portfolio/portfolioSlice';
-import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { type SerializableTrade, type SerializableInvestmentGoal } from '@/types';
-import { type InvestmentGoal } from '@/types';
-import { type CalculatedPortfolioHolding } from '@/types/portfolio';
+import { configureStore } from "@reduxjs/toolkit";
+import tradesReducer from "./trades/tradesSlice";
+import goalsReducer from "./goals/goalsSlice";
+import portfolioReducer from "./portfolio/portfolioSlice";
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import {
+  type SerializableTrade,
+  type SerializableInvestmentGoal,
+} from "@/types";
+import { type CalculatedPortfolioHolding } from "@/types/portfolio";
 
 // Define the state structure
 interface TradesState {
@@ -29,23 +31,29 @@ interface PortfolioState {
 
 // Configure persistence for each slice
 const tradesPersistConfig = {
-  key: 'trades',
+  key: "trades",
   storage,
 };
 
 const goalsPersistConfig = {
-  key: 'goals',
+  key: "goals",
   storage,
 };
 
 const portfolioPersistConfig = {
-  key: 'portfolio',
+  key: "portfolio",
   storage,
 };
 
-const persistedTradesReducer = persistReducer(tradesPersistConfig, tradesReducer);
+const persistedTradesReducer = persistReducer(
+  tradesPersistConfig,
+  tradesReducer,
+);
 const persistedGoalsReducer = persistReducer(goalsPersistConfig, goalsReducer);
-const persistedPortfolioReducer = persistReducer(portfolioPersistConfig, portfolioReducer);
+const persistedPortfolioReducer = persistReducer(
+  portfolioPersistConfig,
+  portfolioReducer,
+);
 
 export const makeStore = () => {
   return configureStore({
@@ -57,7 +65,7 @@ export const makeStore = () => {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          ignoredActions: ['persist/PERSIST'],
+          ignoredActions: ["persist/PERSIST"],
         },
       }),
   });
@@ -73,11 +81,11 @@ export interface RootState {
   portfolio: PortfolioState;
 }
 
-export type AppDispatch = AppStore['dispatch'];
+export type AppDispatch = AppStore["dispatch"];
 
 // Export all selectors from their respective files
-export * from './trades/tradesSelectors';
-export * from './goals/goalsSelectors';
-export * from './portfolio/portfolioSelectors';
+export * from "./trades/tradesSelectors";
+export * from "./goals/goalsSelectors";
+export * from "./portfolio/portfolioSelectors";
 
 export const persistor = persistStore(makeStore());

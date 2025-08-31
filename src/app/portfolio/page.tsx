@@ -1,7 +1,6 @@
 "use client";
 
 import { PortfolioTable } from "@/app/_components/portfolio-table";
-import { PortfolioChart } from "@/app/_components/charts/portfolio-chart";
 import { PortfolioAllocationChart } from "@/app/_components/charts/portfolio-allocation-chart";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,17 +10,20 @@ import {
   EnhancedCardHeader,
   EnhancedCardTitle,
 } from "@/components/ui/enhanced-card";
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { loadTrades } from '@/store/trades/tradesThunks';
-import { calculatePortfolioHoldings } from '@/store/portfolio/portfolioThunks';
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { loadTrades } from "@/store/trades/tradesThunks";
+import { calculatePortfolioHoldings } from "@/store/portfolio/portfolioThunks";
 import { useState, useEffect } from "react";
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
   const portfolioState = useAppSelector((state) => state.portfolio);
   const tradesState = useAppSelector((state) => state.trades);
-  const holdings = portfolioState && 'holdings' in portfolioState ? portfolioState.holdings : [];
-  
+  const holdings =
+    portfolioState && "holdings" in portfolioState
+      ? portfolioState.holdings
+      : [];
+
   const [totalValue, setTotalValue] = useState(0);
   const [holdingsCount, setHoldingsCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -45,14 +47,14 @@ export default function PortfolioPage() {
         setLoading(true);
         // Load trades from localStorage
         const tradesResult = await dispatch(loadTrades());
-        
+
         if (loadTrades.fulfilled.match(tradesResult)) {
           // Convert serializable trades back to Trade objects with Date instances
-          const tradesWithDates = tradesResult.payload.map(trade => ({
+          const tradesWithDates = tradesResult.payload.map((trade) => ({
             ...trade,
-            date: new Date(trade.date)
+            date: new Date(trade.date),
           }));
-          
+
           // Calculate portfolio holdings based on trades
           await dispatch(calculatePortfolioHoldings(tradesWithDates));
         }
@@ -62,7 +64,7 @@ export default function PortfolioPage() {
         setLoading(false);
       }
     };
-    
+
     void loadData();
   }, [dispatch]);
 
@@ -79,7 +81,7 @@ export default function PortfolioPage() {
             Track your investments and monitor performance
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <EnhancedCard className="rounded-xl" animateOnHover>
             <EnhancedCardHeader>
@@ -100,12 +102,8 @@ export default function PortfolioPage() {
                     </p>
                   </div>
                   <div className="text-right md:text-left">
-                    <p className="text-sm text-muted-foreground">
-                      Assets
-                    </p>
-                    <p className="text-2xl font-bold">
-                      Loading...
-                    </p>
+                    <p className="text-sm text-muted-foreground">Assets</p>
+                    <p className="text-2xl font-bold">Loading...</p>
                   </div>
                 </div>
                 <div className="flex justify-end">
@@ -116,7 +114,7 @@ export default function PortfolioPage() {
               </div>
             </EnhancedCardContent>
           </EnhancedCard>
-          
+
           <EnhancedCard className="rounded-xl" animateOnHover>
             <EnhancedCardHeader>
               <EnhancedCardTitle>Portfolio Allocation</EnhancedCardTitle>
@@ -125,13 +123,15 @@ export default function PortfolioPage() {
               </EnhancedCardDescription>
             </EnhancedCardHeader>
             <EnhancedCardContent className="h-64">
-              <div className="h-64 flex items-center justify-center">
-                <p className="text-muted-foreground">Loading allocation data...</p>
+              <div className="flex h-64 items-center justify-center">
+                <p className="text-muted-foreground">
+                  Loading allocation data...
+                </p>
               </div>
             </EnhancedCardContent>
           </EnhancedCard>
         </div>
-        
+
         <EnhancedCard className="rounded-xl" animateOnHover>
           <EnhancedCardHeader>
             <EnhancedCardTitle>Holdings</EnhancedCardTitle>
@@ -178,12 +178,8 @@ export default function PortfolioPage() {
                   </p>
                 </div>
                 <div className="text-right md:text-left">
-                  <p className="text-sm text-muted-foreground">
-                    Assets
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {holdingsCount}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Assets</p>
+                  <p className="text-2xl font-bold">{holdingsCount}</p>
                 </div>
               </div>
               <div className="flex justify-end">

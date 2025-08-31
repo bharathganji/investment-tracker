@@ -3,7 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { saveTrade, updateTrade, loadTrades } from "@/store/trades/tradesThunks";
+import {
+  saveTrade,
+  updateTrade,
+  loadTrades,
+} from "@/store/trades/tradesThunks";
 import { type TradeFormData } from "@/types";
 import { getSettings } from "@/lib/settings";
 import { getUniqueAssets } from "@/lib/asset-utils";
@@ -13,14 +17,13 @@ import { DateSideSection } from "./date-side-section";
 import { QuantityPriceSection } from "./quantity-price-section";
 import { FeeInput } from "./fee-input";
 import { NotesSection } from "./notes-section";
-import { ButtonGroup } from "./button-group";
 import { Button } from "@/components/ui/button";
 import {
   EnhancedCard,
   EnhancedCardContent,
   EnhancedCardDescription,
   EnhancedCardHeader,
-  EnhancedCardTitle
+  EnhancedCardTitle,
 } from "@/components/ui/enhanced-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -45,10 +48,11 @@ export function BaseTradeForm({
 }: BaseTradeFormProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  
+
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+
   const [formData, setFormData] = useState<TradeFormData>(
     existingTrade
       ? {
@@ -68,12 +72,14 @@ export function BaseTradeForm({
           price: initialData?.price ?? 0,
           fees: initialData?.fees ?? 0,
           notes: initialData?.notes ?? "",
-        }
- );
+        },
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allAssets, setAllAssets] = useState<string[]>([]);
-  const [feeInputMethod, setFeeInputMethod] = useState<"fixed" | "percentage">("fixed");
+  const [feeInputMethod, setFeeInputMethod] = useState<"fixed" | "percentage">(
+    "fixed",
+  );
   const assetInputRef = useRef<HTMLInputElement>(null);
   const { validateTradeForm } = useTradeValidation();
 
@@ -89,7 +95,7 @@ export function BaseTradeForm({
       const settings = getSettings();
       setFeeInputMethod(settings.feeInputMethod);
     }
-    
+
     // Load unique assets from trade history
     const assets = getUniqueAssets(trades);
     setAllAssets(assets);
@@ -121,7 +127,7 @@ export function BaseTradeForm({
       ...prev,
       side,
     }));
- };
+  };
 
   const handleQuantityChange = (quantity: number) => {
     setFormData((prev) => ({
@@ -138,14 +144,13 @@ export function BaseTradeForm({
   };
 
   const handleFeesChange = (fees: number) => {
-      console.log("handleFeesChange called with:", fees);
-      setFormData((prev) => ({
-        ...prev,
-        fees,
-      }));
-      console.log("formData after fees change:", { ...formData, fees });
-    };
-
+    console.log("handleFeesChange called with:", fees);
+    setFormData((prev) => ({
+      ...prev,
+      fees,
+    }));
+    console.log("formData after fees change:", { ...formData, fees });
+  };
 
   const handleNotesChange = (notes: string) => {
     setFormData((prev) => ({
@@ -155,8 +160,8 @@ export function BaseTradeForm({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-      console.log("Form submitted");
-      e.preventDefault();
+    console.log("Form submitted");
+    e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
@@ -169,40 +174,50 @@ export function BaseTradeForm({
       });
 
       console.log("Validation errors:", errors);
-            if (Object.keys(errors).length > 0) {
-              const errorMessages = Object.values(errors).filter(Boolean) as string[];
-              throw new Error(errorMessages.join(", "));
-            }
+      if (Object.keys(errors).length > 0) {
+        const errorMessages = Object.values(errors).filter(Boolean) as string[];
+        throw new Error(errorMessages.join(", "));
+      }
 
-      console.log("Checking conditions: onSubmit =", onSubmit, "existingTrade =", existingTrade);
-                  if (existingTrade) {
-              // Update existing trade
-              console.log("Updating trade with formData:", formData);
-              void dispatch(updateTrade({ id: existingTrade.id, updatedTrade: formData }))
-                .then((result) => {
-                  if (updateTrade.fulfilled.match(result)) {
-                    toast.success("Trade updated successfully!", {
-                      description: `Updated ${formData.side} trade for ${formData.asset}`,
-                    });
-                    // Call onSubmit if provided (for example, to close the dialog)
-                    if (onSubmit) {
-                      onSubmit(formData);
-                    } else {
-                      router.push("/trade-history");
-                      router.refresh();
-                    }
-                  } else {
-                    throw new Error("Failed to update trade");
-                  }
-                })
-                .catch((error) => {
-                  const errorMessage = error instanceof Error ? error.message : "An error occurred while updating the trade";
-                  setError(errorMessage);
-                  toast.error("Failed to update trade", {
-                    description: errorMessage,
-                  });
-                });
-            } else if (onSubmit) {
+      console.log(
+        "Checking conditions: onSubmit =",
+        onSubmit,
+        "existingTrade =",
+        existingTrade,
+      );
+      if (existingTrade) {
+        // Update existing trade
+        console.log("Updating trade with formData:", formData);
+        void dispatch(
+          updateTrade({ id: existingTrade.id, updatedTrade: formData }),
+        )
+          .then((result) => {
+            if (updateTrade.fulfilled.match(result)) {
+              toast.success("Trade updated successfully!", {
+                description: `Updated ${formData.side} trade for ${formData.asset}`,
+              });
+              // Call onSubmit if provided (for example, to close the dialog)
+              if (onSubmit) {
+                onSubmit(formData);
+              } else {
+                router.push("/trade-history");
+                router.refresh();
+              }
+            } else {
+              throw new Error("Failed to update trade");
+            }
+          })
+          .catch((error) => {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "An error occurred while updating the trade";
+            setError(errorMessage);
+            toast.error("Failed to update trade", {
+              description: errorMessage,
+            });
+          });
+      } else if (onSubmit) {
         // Save new trade using onSubmit callback
         void dispatch(saveTrade(formData))
           .then((result) => {
@@ -216,7 +231,10 @@ export function BaseTradeForm({
             }
           })
           .catch((error) => {
-            const errorMessage = error instanceof Error ? error.message : "An error occurred while saving the trade";
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "An error occurred while saving the trade";
             setError(errorMessage);
             toast.error("Failed to add trade", {
               description: errorMessage,
@@ -237,7 +255,10 @@ export function BaseTradeForm({
             }
           })
           .catch((error) => {
-            const errorMessage = error instanceof Error ? error.message : "An error occurred while saving the trade";
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "An error occurred while saving the trade";
             setError(errorMessage);
             toast.error("Failed to add trade", {
               description: errorMessage,
@@ -245,18 +266,27 @@ export function BaseTradeForm({
           });
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred while saving the trade";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "An error occurred while saving the trade";
       setError(errorMessage);
-      toast.error(existingTrade ? "Failed to update trade" : "Failed to add trade", {
-        description: errorMessage,
-      });
+      toast.error(
+        existingTrade ? "Failed to update trade" : "Failed to add trade",
+        {
+          description: errorMessage,
+        },
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <EnhancedCard className="mx-auto w-full max-w-2xl rounded-xl" animateOnHover>
+    <EnhancedCard
+      className="mx-auto w-full max-w-2xl rounded-xl"
+      animateOnHover
+    >
       <EnhancedCardHeader>
         <EnhancedCardTitle>{title}</EnhancedCardTitle>
         <EnhancedCardDescription>{description}</EnhancedCardDescription>
@@ -325,8 +355,12 @@ export function BaseTradeForm({
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
-                ? (existingTrade ? "Updating..." : "Saving...")
-                : (existingTrade ? "Update Trade" : "Save Trade")}
+                ? existingTrade
+                  ? "Updating..."
+                  : "Saving..."
+                : existingTrade
+                  ? "Update Trade"
+                  : "Save Trade"}
             </Button>
           </div>
         </form>

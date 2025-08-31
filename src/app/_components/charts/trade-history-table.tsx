@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loadTrades } from '@/store/trades/tradesThunks';
-import { Trade } from '@/types';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { loadTrades } from "@/store/trades/tradesThunks";
+import { type Trade } from "@/types";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -12,15 +12,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface TradeHistoryTableProps {
   limit?: number;
@@ -28,12 +28,18 @@ interface TradeHistoryTableProps {
   onRefresh?: () => void;
 }
 
-export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHistoryTableProps) {
+export function TradeHistoryTable({
+  limit,
+  onTradeClick,
+  onRefresh,
+}: TradeHistoryTableProps) {
   const dispatch = useAppDispatch();
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const tradesLoading =
+    tradesState && "loading" in tradesState ? tradesState.loading : false;
+
   const [displayTrades, setDisplayTrades] = useState<Trade[]>([]);
 
   useEffect(() => {
@@ -43,11 +49,13 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
   useEffect(() => {
     // Update display trades when the trades data changes
     // Convert serializable trades back to Trade objects with Date instances
-    const tradesWithDates = trades.map(trade => ({
+    const tradesWithDates = trades.map((trade) => ({
       ...trade,
-      date: new Date(trade.date)
+      date: new Date(trade.date),
     }));
-    const sortedTrades = [...tradesWithDates].sort((a, b) => b.date.getTime() - a.date.getTime());
+    const sortedTrades = [...tradesWithDates].sort(
+      (a, b) => b.date.getTime() - a.date.getTime(),
+    );
     setDisplayTrades(limit ? sortedTrades.slice(0, limit) : sortedTrades);
   }, [trades, limit]);
 
@@ -70,7 +78,7 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
           <CardDescription>Loading trades...</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
+          <div className="py-8 text-center">
             <p className="text-muted-foreground">Loading trades...</p>
           </div>
         </CardContent>
@@ -81,11 +89,12 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <div>
-            <CardTitle>{limit ? 'Recent Trades' : 'Trade History'}</CardTitle>
+            <CardTitle>{limit ? "Recent Trades" : "Trade History"}</CardTitle>
             <CardDescription>
-              {displayTrades.length} {displayTrades.length === 1 ? 'trade' : 'trades'}
+              {displayTrades.length}{" "}
+              {displayTrades.length === 1 ? "trade" : "trades"}
             </CardDescription>
           </div>
           {displayTrades.length === 0 && !limit && (
@@ -97,8 +106,10 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
       </CardHeader>
       <CardContent>
         {displayTrades.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-lg text-muted-foreground mb-4">No trades recorded yet.</p>
+          <div className="py-12 text-center">
+            <p className="mb-4 text-lg text-muted-foreground">
+              No trades recorded yet.
+            </p>
             <Button asChild>
               <a href="/trade-entry">Add Your First Trade</a>
             </Button>
@@ -125,7 +136,9 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
                   </TableCell>
                   <TableCell>{trade.asset}</TableCell>
                   <TableCell>
-                    <Badge variant={trade.side === 'buy' ? 'default' : 'destructive'}>
+                    <Badge
+                      variant={trade.side === "buy" ? "default" : "destructive"}
+                    >
                       {trade.side.toUpperCase()}
                     </Badge>
                   </TableCell>
@@ -137,7 +150,11 @@ export function TradeHistoryTable({ limit, onTradeClick, onRefresh }: TradeHisto
                   </TableCell>
                   {onTradeClick && (
                     <TableCell>
-                      <Button variant="outline" size="sm" onClick={() => onTradeClick(trade)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onTradeClick(trade)}
+                      >
                         View
                       </Button>
                     </TableCell>

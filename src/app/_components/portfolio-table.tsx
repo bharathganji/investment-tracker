@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loadTrades } from '@/store/trades/tradesThunks';
-import { calculatePortfolioHoldings } from '@/store/portfolio/portfolioThunks';
-import { type CalculatedPortfolioHolding } from "@/types/portfolio";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { loadTrades } from "@/store/trades/tradesThunks";
+import { calculatePortfolioHoldings } from "@/store/portfolio/portfolioThunks";
 import {
   EnhancedTable,
   EnhancedTableBody,
@@ -13,9 +12,13 @@ import {
   EnhancedTableHeader,
   EnhancedTableRow,
 } from "@/components/ui/enhanced-table";
-import { EnhancedCard, EnhancedCardContent, EnhancedCardHeader, EnhancedCardTitle } from "@/components/ui/enhanced-card";
+import {
+  EnhancedCard,
+  EnhancedCardContent,
+  EnhancedCardHeader,
+  EnhancedCardTitle,
+} from "@/components/ui/enhanced-card";
 import { Badge } from "@/components/ui/badge";
-import { financialColors } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 interface PortfolioTableProps {
@@ -28,7 +31,7 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
   const holdings = useAppSelector((state) => state.portfolio.holdings);
   const portfolioLoading = useAppSelector((state) => state.portfolio.loading);
   const tradesLoading = useAppSelector((state) => state.trades.loading);
-  
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,13 +48,13 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
       setLoading(true);
       // Load trades first
       const result = await dispatch(loadTrades()).unwrap();
-      
+
       // Convert serializable trades back to Trade objects with Date instances
-      const tradesWithDates = result.map(trade => ({
+      const tradesWithDates = result.map((trade) => ({
         ...trade,
-        date: new Date(trade.date)
+        date: new Date(trade.date),
       }));
-      
+
       // Calculate portfolio holdings based on trades
       await dispatch(calculatePortfolioHoldings(tradesWithDates)).unwrap();
     } catch (error) {
@@ -108,35 +111,61 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
               <EnhancedTable>
                 <EnhancedTableHeader>
                   <EnhancedTableRow>
-                    <EnhancedTableHead className="whitespace-nowrap">Asset</EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">Quantity</EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">Avg Cost</EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">Current Value</EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">P&L</EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">P&L %</EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">
+                      Asset
+                    </EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">
+                      Quantity
+                    </EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">
+                      Avg Cost
+                    </EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">
+                      Current Value
+                    </EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">
+                      P&L
+                    </EnhancedTableHead>
+                    <EnhancedTableHead className="whitespace-nowrap">
+                      P&L %
+                    </EnhancedTableHead>
                   </EnhancedTableRow>
                 </EnhancedTableHeader>
                 <EnhancedTableBody>
                   {holdings.map((holding) => (
                     <EnhancedTableRow
                       key={holding.asset}
-                      variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
+                      variant={
+                        holding.unrealizedPnL >= 0 ? "positive" : "negative"
+                      }
                     >
-                      <EnhancedTableCell className="font-medium whitespace-nowrap">{holding.asset}</EnhancedTableCell>
-                      <EnhancedTableCell className="whitespace-nowrap">{holding.quantity.toLocaleString()}</EnhancedTableCell>
-                      <EnhancedTableCell className="whitespace-nowrap">${holding.averageCost.toFixed(2)}</EnhancedTableCell>
-                      <EnhancedTableCell className="font-medium whitespace-nowrap">
+                      <EnhancedTableCell className="whitespace-nowrap font-medium">
+                        {holding.asset}
+                      </EnhancedTableCell>
+                      <EnhancedTableCell className="whitespace-nowrap">
+                        {holding.quantity.toLocaleString()}
+                      </EnhancedTableCell>
+                      <EnhancedTableCell className="whitespace-nowrap">
+                        ${holding.averageCost.toFixed(2)}
+                      </EnhancedTableCell>
+                      <EnhancedTableCell className="whitespace-nowrap font-medium">
                         ${holding.currentValue.toFixed(2)}
                       </EnhancedTableCell>
                       <EnhancedTableCell
-                        variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
+                        variant={
+                          holding.unrealizedPnL >= 0 ? "positive" : "negative"
+                        }
                         align="right"
                         className="whitespace-nowrap"
                       >
                         ${holding.unrealizedPnL.toFixed(2)}
                       </EnhancedTableCell>
                       <EnhancedTableCell
-                        variant={holding.unrealizedPnLPercentage >= 0 ? "positive" : "negative"}
+                        variant={
+                          holding.unrealizedPnLPercentage >= 0
+                            ? "positive"
+                            : "negative"
+                        }
                         align="right"
                         className="whitespace-nowrap"
                       >

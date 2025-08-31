@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector } from "@/store/hooks";
 import {
   AreaChart,
   Area,
@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 interface ChartDataPoint {
- month: string;
+  month: string;
   pnl: number;
   cumulativePnL: number;
   trades: number;
@@ -21,9 +21,11 @@ interface ChartDataPoint {
 
 export function PerformanceOverviewChart() {
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const tradesLoading =
+    tradesState && "loading" in tradesState ? tradesState.loading : false;
+
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,16 +33,6 @@ export function PerformanceOverviewChart() {
     // Update loading state when tradesLoading changes
     setLoading(tradesLoading);
   }, [tradesLoading]);
-  
-  useEffect(() => {
-    // Calculate chart data when trades are loaded and trades change
-    if (!tradesLoading && trades.length > 0) {
-      calculateChartData();
-    } else if (tradesLoading) {
-      // Clear chart data when loading starts
-      setChartData([]);
-    }
-  }, [trades, tradesLoading]);
 
   const calculateChartData = () => {
     try {
@@ -87,6 +79,31 @@ export function PerformanceOverviewChart() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Calculate chart data when trades are loaded and trades change
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    } else if (tradesLoading) {
+      // Clear chart data when loading starts
+      setChartData([]);
+    }
+  }, [trades, tradesLoading, calculateChartData]);
+
+  useEffect(() => {
+    // Update loading state when tradesLoading changes
+    setLoading(tradesLoading);
+  }, [tradesLoading]);
+
+  useEffect(() => {
+    // Calculate chart data when trades are loaded and trades change
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    } else if (tradesLoading) {
+      // Clear chart data when loading starts
+      setChartData([]);
+    }
+  }, [trades, tradesLoading, calculateChartData]);
 
   if (loading) {
     return (

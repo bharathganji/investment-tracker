@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppSelector } from '@/store/hooks';
-import { type InvestmentGoal } from "@/types";
+import { useAppSelector } from "@/store/hooks";
 import { ProgressCard } from "@/components/progress-card";
 import { GoalTracker } from "@/app/_components/goal-tracker";
 import { GoalAnalytics } from "@/app/goals/_components/goal-analytics";
-import { Button } from "@/components/ui/button";
 import {
   EnhancedCard,
   EnhancedCardContent,
@@ -18,9 +16,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function GoalsPage() {
   const goalsState = useAppSelector((state) => state.goals);
-  const goals = goalsState && 'goals' in goalsState ? goalsState.goals : [];
-  const goalsLoading = goalsState && 'loading' in goalsState ? goalsState.loading : false;
-  
+  const goals = goalsState && "goals" in goalsState ? goalsState.goals : [];
+  const goalsLoading =
+    goalsState && "loading" in goalsState ? goalsState.loading : false;
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,7 +64,7 @@ export default function GoalsPage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="mt-6">
           {goals.length === 0 ? (
             <EnhancedCard className="rounded-xl" animateOnHover>
@@ -77,11 +76,15 @@ export default function GoalsPage() {
                 </EnhancedCardDescription>
               </EnhancedCardHeader>
               <EnhancedCardContent>
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
+                <div className="py-8 text-center">
+                  <p className="mb-4 text-muted-foreground">
                     Get started by creating your first investment goal.
                   </p>
-                  <GoalTracker key="no-goals" instanceId="no-goals" onGoalUpdate={handleGoalUpdate} />
+                  <GoalTracker
+                    key="no-goals"
+                    instanceId="no-goals"
+                    onGoalUpdate={handleGoalUpdate}
+                  />
                 </div>
               </EnhancedCardContent>
             </EnhancedCard>
@@ -107,13 +110,17 @@ export default function GoalsPage() {
                   </EnhancedCardDescription>
                 </EnhancedCardHeader>
                 <EnhancedCardContent>
-                  <GoalTracker key="with-goals" instanceId="with-goals" onGoalUpdate={handleGoalUpdate} />
+                  <GoalTracker
+                    key="with-goals"
+                    instanceId="with-goals"
+                    onGoalUpdate={handleGoalUpdate}
+                  />
                 </EnhancedCardContent>
               </EnhancedCard>
             </>
           )}
         </TabsContent>
-        
+
         <TabsContent value="analytics" className="mt-6">
           <GoalAnalytics />
         </TabsContent>

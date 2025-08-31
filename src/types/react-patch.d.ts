@@ -2,9 +2,10 @@
 // This is a workaround for the TypeScript error:
 // "Namespace 'React' has no exported member 'ActionDispatch'"
 
-import * as React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import * as React from "react";
 
-declare module 'react' {
+declare module "react" {
   // Define ActionDispatch type to match what Next.js expects
   type ActionDispatch<A> = (value: A) => void;
 }

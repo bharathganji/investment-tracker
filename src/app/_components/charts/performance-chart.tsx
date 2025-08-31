@@ -1,11 +1,26 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useAppSelector } from '@/store/hooks';
-import { calculatePerformanceMetrics } from '@/lib/calculations/returns';
-import { fromSerializableTrade } from '@/lib/utils';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { calculatePerformanceMetrics } from "@/lib/calculations/returns";
+import { fromSerializableTrade } from "@/lib/utils";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface PerformanceDataPoint {
   metric: string;
@@ -14,43 +29,45 @@ interface PerformanceDataPoint {
 
 export function PerformanceChart() {
   const tradesState = useAppSelector((state) => state.trades);
-  const trades = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
-  
+  const trades =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const tradesLoading =
+    tradesState && "loading" in tradesState ? tradesState.loading : false;
+
   const [chartData, setChartData] = useState<PerformanceDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Update loading state when trades data changes
-    setLoading(tradesLoading);
-    
-    // Calculate chart data when trades are loaded
-    if (!tradesLoading && trades.length > 0) {
-      calculateChartData();
-    }
-  }, [trades, tradesLoading]);
 
   const calculateChartData = () => {
     try {
       // Convert SerializableTrade[] to Trade[]
       const convertedTrades = trades.map(fromSerializableTrade);
       const performance = calculatePerformanceMetrics(convertedTrades);
-      
+
       const data: PerformanceDataPoint[] = [
-        { metric: 'Total Trades', value: performance.totalTrades },
-        { metric: 'Total P&L', value: performance.totalProfitLoss },
-        { metric: 'Total Fees', value: performance.totalFeesPaid },
-        { metric: 'ROI', value: performance.roi },
-        { metric: 'CAGR', value: performance.cagr }
+        { metric: "Total Trades", value: performance.totalTrades },
+        { metric: "Total P&L", value: performance.totalProfitLoss },
+        { metric: "Total Fees", value: performance.totalFeesPaid },
+        { metric: "ROI", value: performance.roi },
+        { metric: "CAGR", value: performance.cagr },
       ];
-      
+
       setChartData(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error calculating chart data:', error);
+      console.error("Error calculating chart data:", error);
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Update loading state when trades data changes
+    setLoading(tradesLoading);
+
+    // Calculate chart data when trades are loaded
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    }
+  }, [trades, tradesLoading, calculateChartData]);
 
   if (loading) {
     return (
@@ -60,7 +77,7 @@ export function PerformanceChart() {
           <CardDescription>Loading performance data...</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center">
+          <div className="flex h-64 items-center justify-center">
             <p className="text-muted-foreground">Loading chart...</p>
           </div>
         </CardContent>
@@ -73,10 +90,12 @@ export function PerformanceChart() {
       <Card>
         <CardHeader>
           <CardTitle>Performance Metrics</CardTitle>
-          <CardDescription>No data available for performance analysis</CardDescription>
+          <CardDescription>
+            No data available for performance analysis
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center">
+          <div className="flex h-64 items-center justify-center">
             <p className="text-muted-foreground">No trades recorded yet</p>
           </div>
         </CardContent>
@@ -88,7 +107,9 @@ export function PerformanceChart() {
     <Card>
       <CardHeader>
         <CardTitle>Performance Metrics</CardTitle>
-        <CardDescription>Key performance indicators and analytics</CardDescription>
+        <CardDescription>
+          Key performance indicators and analytics
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-64">
@@ -105,16 +126,12 @@ export function PerformanceChart() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="metric" />
               <YAxis />
-              <Tooltip 
-                formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Value']}
+              <Tooltip
+                formatter={(value) => [`$${Number(value).toFixed(2)}`, "Value"]}
                 labelFormatter={(label) => `Metric: ${label}`}
               />
               <Legend />
-              <Bar 
-                dataKey="value" 
-                name="Performance Value" 
-                fill="#8884d8" 
-              />
+              <Bar dataKey="value" name="Performance Value" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -16,8 +16,14 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartProps, ChartDataPoint } from "@/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { type ChartProps } from "@/types";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -97,10 +103,15 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
               outerRadius={80}
               fill="#8884d8"
               dataKey={dataKey}
-              label={({ name, percent }) => `${name} ${(percent ? percent * 100 : 0).toFixed(0)}%`}
+              label={({ name, percent }) =>
+                `${name} ${(percent ? percent * 100 : 0).toFixed(0)}%`
+              }
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colors[index % colors.length]}
+                />
               ))}
             </Pie>
             <Tooltip />

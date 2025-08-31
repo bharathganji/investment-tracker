@@ -6,7 +6,6 @@ import {
   updateTrade,
   deleteTrade,
 } from "@/lib/data-store";
-import { type Trade } from "@/types";
 
 const tradeInputSchema = z.object({
   date: z.date(),

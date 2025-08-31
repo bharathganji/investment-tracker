@@ -1,11 +1,26 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loadTrades } from '@/store/trades/tradesThunks';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { type SerializableTrade } from '@/types';
+import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { loadTrades } from "@/store/trades/tradesThunks";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { type SerializableTrade } from "@/types";
 
 interface PortfolioValueDataPoint {
   date: string;
@@ -17,12 +32,16 @@ interface PortfolioValueChartProps {
   standalone?: boolean;
 }
 
-export function PortfolioValueChart({ standalone = true }: PortfolioValueChartProps) {
+export function PortfolioValueChart({
+  standalone = true,
+}: PortfolioValueChartProps) {
   const dispatch = useAppDispatch();
   const tradesState = useAppSelector((state) => state.trades);
-  const trades: SerializableTrade[] = tradesState && 'trades' in tradesState ? tradesState.trades : [];
-  const tradesLoading = tradesState && 'loading' in tradesState ? tradesState.loading : false;
-  
+  const trades: SerializableTrade[] =
+    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const tradesLoading =
+    tradesState && "loading" in tradesState ? tradesState.loading : false;
+
   const [chartData, setChartData] = useState<PortfolioValueDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,14 +57,14 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
         setLoading(false);
       }
     };
-    
+
     void loadTradesData();
   }, [dispatch]);
 
   useEffect(() => {
     // Update loading state when trades data changes
     setLoading(tradesLoading);
-    
+
     // Calculate chart data when trades are loaded
     if (!tradesLoading && trades.length > 0) {
       calculateChartData();
@@ -55,9 +74,12 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
   const calculateChartData = () => {
     try {
       // Group trades by date and calculate cumulative portfolio value
-      const groupedData: Record<string, { totalValue: number; totalPnL: number }> = {};
-      
-      trades.forEach(trade => {
+      const groupedData: Record<
+        string,
+        { totalValue: number; totalPnL: number }
+      > = {};
+
+      trades.forEach((trade) => {
         // Ensure we're working with a string date
         let dateString: string;
         if (typeof trade.date === "string") {
@@ -65,38 +87,65 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
         } else {
           dateString = new Date().toISOString();
         }
-        
-        const dateKey = dateString.split('T')[0];
-        
+
+        const dateKey = dateString.split("T")[0];
+
         if (dateKey) {
           if (!groupedData[dateKey]) {
             groupedData[dateKey] = { totalValue: 0, totalPnL: 0 };
           }
-          
+
           const tradeValue = trade.quantity * trade.price;
-          const tradePnL = trade.side === 'buy' ? -tradeValue : tradeValue;
-          
-          groupedData[dateKey].totalValue += trade.side === 'buy' ? tradeValue : -tradeValue;
+          const tradePnL = trade.side === "buy" ? -tradeValue : tradeValue;
+
+          groupedData[dateKey].totalValue +=
+            trade.side === "buy" ? tradeValue : -tradeValue;
           groupedData[dateKey].totalPnL += tradePnL - trade.fees;
         }
       });
-      
+
       // Convert to chart data format
       const data: PortfolioValueDataPoint[] = Object.entries(groupedData)
         .map(([date, values]) => ({
           date,
           value: parseFloat(values.totalValue.toFixed(2)),
-          cumulativePnL: parseFloat(values.totalPnL.toFixed(2))
+          cumulativePnL: parseFloat(values.totalPnL.toFixed(2)),
         }))
         .sort((a, b) => a.date.localeCompare(b.date));
-      
+
       setChartData(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error calculating chart data:', error);
+      console.error("Error calculating chart data:", error);
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Load trades data
+    const loadTradesData = async () => {
+      try {
+        setLoading(true);
+        await dispatch(loadTrades()).unwrap();
+      } catch (error) {
+        console.error("Error loading trades:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadTradesData();
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Update loading state when trades data changes
+    setLoading(tradesLoading);
+
+    // Calculate chart data when trades are loaded
+    if (!tradesLoading && trades.length > 0) {
+      calculateChartData();
+    }
+  }, [trades, tradesLoading, calculateChartData]);
 
   if (loading) {
     if (standalone) {
@@ -104,10 +153,12 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
         <Card>
           <CardHeader>
             <CardTitle>Portfolio Value</CardTitle>
-            <CardDescription>Loading portfolio performance data...</CardDescription>
+            <CardDescription>
+              Loading portfolio performance data...
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64 flex items-center justify-center">
+            <div className="flex h-64 items-center justify-center">
               <p className="text-muted-foreground">Loading chart...</p>
             </div>
           </CardContent>
@@ -115,7 +166,7 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
       );
     } else {
       return (
-        <div className="h-64 flex items-center justify-center">
+        <div className="flex h-64 items-center justify-center">
           <p className="text-muted-foreground">Loading chart...</p>
         </div>
       );
@@ -128,10 +179,12 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
         <Card>
           <CardHeader>
             <CardTitle>Portfolio Value</CardTitle>
-            <CardDescription>No data available for portfolio performance</CardDescription>
+            <CardDescription>
+              No data available for portfolio performance
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64 flex items-center justify-center">
+            <div className="flex h-64 items-center justify-center">
               <p className="text-muted-foreground">No trades recorded yet</p>
             </div>
           </CardContent>
@@ -139,7 +192,7 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
       );
     } else {
       return (
-        <div className="h-64 flex items-center justify-center">
+        <div className="flex h-64 items-center justify-center">
           <p className="text-muted-foreground">No trades recorded yet</p>
         </div>
       );
@@ -152,7 +205,9 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
         <Card>
           <CardHeader>
             <CardTitle>Portfolio Value</CardTitle>
-            <CardDescription>Historical portfolio value and performance</CardDescription>
+            <CardDescription>
+              Historical portfolio value and performance
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -165,7 +220,10 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip
-                    formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Value']}
+                    formatter={(value) => [
+                      `$${Number(value).toFixed(2)}`,
+                      "Value",
+                    ]}
                     labelFormatter={(label) => `Date: ${label}`}
                   />
                   <Legend />
@@ -201,7 +259,7 @@ export function PortfolioValueChart({ standalone = true }: PortfolioValueChartPr
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip
-                formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Value']}
+                formatter={(value) => [`$${Number(value).toFixed(2)}`, "Value"]}
                 labelFormatter={(label) => `Date: ${label}`}
               />
               <Legend />
