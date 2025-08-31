@@ -6,19 +6,10 @@
       "use": "@vercel/next"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
-  ],
-  "github": {
-    "silent": true
-  },
   "buildCommand": "next build",
   "outputDirectory": ".next",
   "devCommand": "next dev --turbo",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "regions": ["iad1"],
   "cleanUrls": true,
   "trailingSlash": false,
@@ -40,12 +31,6 @@
           "value": "public, max-age=0, must-revalidate"
         }
       ]
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/dashboard/",
-      "destination": "/dashboard"
     }
   ],
   "rewrites": [
