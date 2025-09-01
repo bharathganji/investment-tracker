@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "@/store/hooks";
 import {
   PieChart,
@@ -43,7 +43,7 @@ export function PortfolioAllocationChart({
   );
   const [loading, setLoading] = useState(true);
 
-  const calculateChartData = () => {
+  const calculateChartData = useCallback(() => {
     try {
       // Convert holdings to chart data format
       const data = holdings
@@ -59,7 +59,7 @@ export function PortfolioAllocationChart({
       console.error("Error calculating allocation chart data:", error);
       setLoading(false);
     }
-  };
+  }, [holdings]);
 
   useEffect(() => {
     // Update loading state when portfolio data changes

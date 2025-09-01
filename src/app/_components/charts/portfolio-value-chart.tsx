@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { loadTrades } from "@/store/trades/tradesThunks";
 import {
@@ -61,17 +61,7 @@ export function PortfolioValueChart({
     void loadTradesData();
   }, [dispatch]);
 
-  useEffect(() => {
-    // Update loading state when trades data changes
-    setLoading(tradesLoading);
-
-    // Calculate chart data when trades are loaded
-    if (!tradesLoading && trades.length > 0) {
-      calculateChartData();
-    }
-  }, [trades, tradesLoading]);
-
-  const calculateChartData = () => {
+  const calculateChartData = useCallback(() => {
     try {
       // Group trades by date and calculate cumulative portfolio value
       const groupedData: Record<
@@ -119,23 +109,7 @@ export function PortfolioValueChart({
       console.error("Error calculating chart data:", error);
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    // Load trades data
-    const loadTradesData = async () => {
-      try {
-        setLoading(true);
-        await dispatch(loadTrades()).unwrap();
-      } catch (error) {
-        console.error("Error loading trades:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void loadTradesData();
-  }, [dispatch]);
+  }, [trades]);
 
   useEffect(() => {
     // Update loading state when trades data changes

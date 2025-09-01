@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Home,
@@ -6,6 +6,7 @@ import {
   Receipt,
   TrendingUp,
   Target,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,33 +20,65 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: <Home className="h-5 w-5" /> },
-  { name: "Portfolio", href: "/portfolio", icon: <PieChart className="h-5 w-5" /> },
-  { name: "Trades", href: "/trade-history", icon: <Receipt className="h-5 w-5" /> },
-  { name: "Analytics", href: "/analytics", icon: <TrendingUp className="h-5 w-5" /> },
+  {
+    name: "Portfolio",
+    href: "/portfolio",
+    icon: <PieChart className="h-5 w-5" />,
+  },
+  {
+    name: "Trades",
+    href: "/trade-history",
+    icon: <Receipt className="h-5 w-5" />,
+  },
+  {
+    name: "Analytics",
+    href: "/analytics",
+    icon: <TrendingUp className="h-5 w-5" />,
+  },
   { name: "Goals", href: "/goals", icon: <Target className="h-5 w-5" /> },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: <Settings className="h-5 w-5" />,
+  },
 ];
 
+// Memoized MobileNavItem component to prevent unnecessary re-renders
+const MobileNavItem = memo(
+  ({ item, isActive }: { item: NavItem; isActive: boolean }) => (
+    <Link key={item.href} href={item.href} passHref>
+      <Button
+        variant="ghost"
+        className={cn(
+          "flex h-16 w-full flex-col items-center justify-center rounded-none py-2 text-xs",
+          isActive
+            ? "bg-muted text-primary"
+            : "text-muted-foreground hover:bg-muted hover:text-primary",
+        )}
+      >
+        <div className="flex items-center justify-center">{item.icon}</div>
+        <span className="mt-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap px-1 text-center leading-tight">
+          {item.name}
+        </span>
+      </Button>
+    </Link>
+  ),
+);
+
+MobileNavItem.displayName = "MobileNavItem";
+
 export const MobileNav: React.FC = () => {
- const pathname = usePathname();
+  const pathname = usePathname();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background md:hidden">
-      <div className="grid grid-cols-5">
+      <div className="grid w-full grid-cols-6">
         {navItems.map((item) => (
-          <Link key={item.href} href={item.href}>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full rounded-none py-3",
-                pathname === item.href
-                  ? "bg-muted text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-primary"
-              )}
-            >
-              {item.icon}
-              <span className="sr-only">{item.name}</span>
-            </Button>
-          </Link>
+          <MobileNavItem
+            key={item.href}
+            item={item}
+            isActive={pathname === item.href}
+          />
         ))}
       </div>
     </div>

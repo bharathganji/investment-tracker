@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "@/store/hooks";
 import {
   BarChart,
@@ -28,7 +28,7 @@ export function FeeAnalysisChart() {
   const [chartData, setChartData] = useState<FeeDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const calculateChartData = () => {
+  const calculateChartData = useCallback(() => {
     try {
       // Group trades by month and calculate total fees
       const monthlyData: Record<string, { totalFees: number }> = {};
@@ -58,7 +58,7 @@ export function FeeAnalysisChart() {
       console.error("Error calculating fee chart data:", error);
       setLoading(false);
     }
-  };
+  }, [trades]);
 
   useEffect(() => {
     // Update loading state when trades data changes

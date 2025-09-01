@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { loadTrades } from "@/store/trades/tradesThunks";
 import { loadGoals } from "@/store/goals/goalsThunks";
@@ -53,7 +53,7 @@ export function DashboardStats() {
   const totalPnLCount = useFinancialCountUp(stats.totalPnL, 1000, 2);
   const roiCount = useFinancialCountUp(stats.roi, 1000, 2);
 
-  const calculateStats = () => {
+  const calculateStats = useCallback(() => {
     try {
       // Convert serializable trades back to Trade objects with Date instances
       const tradesWithDates = trades.map((trade) => ({
@@ -89,7 +89,7 @@ export function DashboardStats() {
       console.error("Error calculating dashboard data:", error);
       setLoading(false);
     }
-  };
+  }, [trades, holdings]);
 
   useEffect(() => {
     // Load data from Redux store

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "@/store/hooks";
 import {
   AreaChart,
@@ -41,17 +41,7 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
   const [chartData, setChartData] = useState<PortfolioChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Update loading state when trades data changes
-    setLoading(tradesLoading);
-
-    // Calculate chart data when trades are loaded
-    if (!tradesLoading && trades.length > 0) {
-      calculateChartData();
-    }
-  }, [trades, tradesLoading]);
-
-  const calculateChartData = () => {
+  const calculateChartData = useCallback(() => {
     try {
       // Convert SerializableTrade[] to Trade[]
       const convertedTrades = trades.map(fromSerializableTrade);
@@ -93,7 +83,7 @@ export function PortfolioChart({ standalone = true }: PortfolioChartProps) {
       console.error("Error calculating chart data:", error);
       setLoading(false);
     }
-  };
+  }, [trades]);
 
   useEffect(() => {
     // Update loading state when trades data changes

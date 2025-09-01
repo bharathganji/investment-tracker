@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { loadTrades } from "@/store/trades/tradesThunks";
 import { calculatePortfolioHoldings } from "@/store/portfolio/portfolioThunks";
@@ -20,12 +20,49 @@ import {
 } from "@/components/ui/enhanced-card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { type SerializableTrade, type PortfolioHolding } from "@/types";
 
 interface PortfolioTableProps {
   onRefresh?: () => void;
 }
 
-export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
+// Memoized table row component to prevent unnecessary re-renders
+const PortfolioTableRow = memo(({ holding }: { holding: PortfolioHolding }) => (
+  <EnhancedTableRow
+    variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
+  >
+    <EnhancedTableCell className="whitespace-nowrap font-medium">
+      {holding.asset}
+    </EnhancedTableCell>
+    <EnhancedTableCell className="whitespace-nowrap">
+      {holding.quantity.toLocaleString()}
+    </EnhancedTableCell>
+    <EnhancedTableCell className="whitespace-nowrap">
+      ${holding.averageCost.toFixed(2)}
+    </EnhancedTableCell>
+    <EnhancedTableCell className="whitespace-nowrap font-medium">
+      ${holding.currentValue.toFixed(2)}
+    </EnhancedTableCell>
+    <EnhancedTableCell
+      variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
+      align="right"
+      className="whitespace-nowrap"
+    >
+      ${holding.unrealizedPnL.toFixed(2)}
+    </EnhancedTableCell>
+    <EnhancedTableCell
+      variant={holding.unrealizedPnLPercentage >= 0 ? "positive" : "negative"}
+      align="right"
+      className="whitespace-nowrap"
+    >
+      {holding.unrealizedPnLPercentage.toFixed(2)}%
+    </EnhancedTableCell>
+  </EnhancedTableRow>
+));
+
+PortfolioTableRow.displayName = "PortfolioTableRow";
+
+export const PortfolioTable = memo(({ onRefresh }: PortfolioTableProps) => {
   const dispatch = useAppDispatch();
   const trades = useAppSelector((state) => state.trades.trades);
   const holdings = useAppSelector((state) => state.portfolio.holdings);
@@ -34,23 +71,14 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void loadHoldings();
-  }, []);
-
-  useEffect(() => {
-    // Update loading state when portfolio data changes
-    setLoading(portfolioLoading || tradesLoading);
-  }, [portfolioLoading, tradesLoading]);
-
-  const loadHoldings = async () => {
+  const loadHoldings = useCallback(async () => {
     try {
       setLoading(true);
       // Load trades first
       const result = await dispatch(loadTrades()).unwrap();
 
       // Convert serializable trades back to Trade objects with Date instances
-      const tradesWithDates = result.map((trade) => ({
+      const tradesWithDates = result.map((trade: SerializableTrade) => ({
         ...trade,
         date: new Date(trade.date),
       }));
@@ -62,14 +90,23 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch]);
 
-  const refreshData = () => {
+  useEffect(() => {
+    void loadHoldings();
+  }, [loadHoldings]);
+
+  useEffect(() => {
+    // Update loading state when portfolio data changes
+    setLoading(portfolioLoading || tradesLoading);
+  }, [portfolioLoading, tradesLoading]);
+
+  const refreshData = useCallback(() => {
     void loadHoldings();
     if (onRefresh) {
       onRefresh();
     }
-  };
+  }, [loadHoldings, onRefresh]);
 
   if (loading) {
     return (
@@ -133,45 +170,7 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
                 </EnhancedTableHeader>
                 <EnhancedTableBody>
                   {holdings.map((holding) => (
-                    <EnhancedTableRow
-                      key={holding.asset}
-                      variant={
-                        holding.unrealizedPnL >= 0 ? "positive" : "negative"
-                      }
-                    >
-                      <EnhancedTableCell className="whitespace-nowrap font-medium">
-                        {holding.asset}
-                      </EnhancedTableCell>
-                      <EnhancedTableCell className="whitespace-nowrap">
-                        {holding.quantity.toLocaleString()}
-                      </EnhancedTableCell>
-                      <EnhancedTableCell className="whitespace-nowrap">
-                        ${holding.averageCost.toFixed(2)}
-                      </EnhancedTableCell>
-                      <EnhancedTableCell className="whitespace-nowrap font-medium">
-                        ${holding.currentValue.toFixed(2)}
-                      </EnhancedTableCell>
-                      <EnhancedTableCell
-                        variant={
-                          holding.unrealizedPnL >= 0 ? "positive" : "negative"
-                        }
-                        align="right"
-                        className="whitespace-nowrap"
-                      >
-                        ${holding.unrealizedPnL.toFixed(2)}
-                      </EnhancedTableCell>
-                      <EnhancedTableCell
-                        variant={
-                          holding.unrealizedPnLPercentage >= 0
-                            ? "positive"
-                            : "negative"
-                        }
-                        align="right"
-                        className="whitespace-nowrap"
-                      >
-                        {holding.unrealizedPnLPercentage.toFixed(2)}%
-                      </EnhancedTableCell>
-                    </EnhancedTableRow>
+                    <PortfolioTableRow key={holding.asset} holding={holding} />
                   ))}
                 </EnhancedTableBody>
               </EnhancedTable>
@@ -181,4 +180,6 @@ export function PortfolioTable({ onRefresh }: PortfolioTableProps) {
       </EnhancedCard>
     </motion.div>
   );
-}
+});
+
+PortfolioTable.displayName = "PortfolioTable";

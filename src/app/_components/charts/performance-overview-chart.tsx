@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "@/store/hooks";
 import {
   AreaChart,
@@ -29,12 +29,7 @@ export function PerformanceOverviewChart() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Update loading state when tradesLoading changes
-    setLoading(tradesLoading);
-  }, [tradesLoading]);
-
-  const calculateChartData = () => {
+  const calculateChartData = useCallback(() => {
     try {
       // Group trades by month and calculate cumulative P&L
       const monthlyData: Record<
@@ -78,17 +73,7 @@ export function PerformanceOverviewChart() {
       console.error("Error calculating chart data:", error);
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    // Calculate chart data when trades are loaded and trades change
-    if (!tradesLoading && trades.length > 0) {
-      calculateChartData();
-    } else if (tradesLoading) {
-      // Clear chart data when loading starts
-      setChartData([]);
-    }
-  }, [trades, tradesLoading, calculateChartData]);
+  }, [trades]);
 
   useEffect(() => {
     // Update loading state when tradesLoading changes
