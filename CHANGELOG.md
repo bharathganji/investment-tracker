@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/bharathganji/investment-tracker/compare/v1.0.0...v1.0.1) (2025-09-01)
+
+### Code Refactoring
+
+- **ui:** optimize component re-renders with useCallback and memo ([b345f88](https://github.com/bharathganji/investment-tracker/commit/b345f881ad98403b4ed9fe91edbf636bee94d0e7))
+
 ## 1.0.0 (2025-08-31)
 
 ### ⚠ BREAKING CHANGES
