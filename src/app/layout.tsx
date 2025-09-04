@@ -11,10 +11,11 @@ import { MainLayout } from "@/app/_components/main-layout";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 import StoreProvider from "@/store/provider";
+import { CustomThemeProvider } from "@/components/custom-theme-provider";
 
 const inter = Inter({
   subsets: ["latin"],
- variable: "--font-inter",
+  variable: "--font-inter",
 });
 
 const dmSans = DM_Sans({
@@ -33,18 +34,31 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${inter.variable} ${dmSans.variable} ${robotoMono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${inter.variable} ${dmSans.variable} ${robotoMono.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
+          <CustomThemeProvider />
           <StoreProvider>
             <TRPCReactProvider>
               <MainLayout>{children}</MainLayout>

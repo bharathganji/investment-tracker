@@ -31,29 +31,29 @@ const PortfolioTableRow = memo(({ holding }: { holding: PortfolioHolding }) => (
   <EnhancedTableRow
     variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
   >
-    <EnhancedTableCell className="whitespace-nowrap font-medium">
+    <EnhancedTableCell className="whitespace-nowrap text-xs font-medium sm:text-sm">
       {holding.asset}
     </EnhancedTableCell>
-    <EnhancedTableCell className="whitespace-nowrap">
+    <EnhancedTableCell className="whitespace-nowrap text-xs sm:text-sm">
       {holding.quantity.toLocaleString()}
     </EnhancedTableCell>
-    <EnhancedTableCell className="whitespace-nowrap">
+    <EnhancedTableCell className="whitespace-nowrap text-xs sm:text-sm">
       ${holding.averageCost.toFixed(2)}
     </EnhancedTableCell>
-    <EnhancedTableCell className="whitespace-nowrap font-medium">
+    <EnhancedTableCell className="whitespace-nowrap text-xs font-medium sm:text-sm">
       ${holding.currentValue.toFixed(2)}
     </EnhancedTableCell>
     <EnhancedTableCell
       variant={holding.unrealizedPnL >= 0 ? "positive" : "negative"}
       align="right"
-      className="whitespace-nowrap"
+      className="whitespace-nowrap text-xs sm:text-sm"
     >
       ${holding.unrealizedPnL.toFixed(2)}
     </EnhancedTableCell>
     <EnhancedTableCell
       variant={holding.unrealizedPnLPercentage >= 0 ? "positive" : "negative"}
       align="right"
-      className="whitespace-nowrap"
+      className="whitespace-nowrap text-xs sm:text-sm"
     >
       {holding.unrealizedPnLPercentage.toFixed(2)}%
     </EnhancedTableCell>
@@ -144,26 +144,26 @@ export const PortfolioTable = memo(({ onRefresh }: PortfolioTableProps) => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto">
               <EnhancedTable>
                 <EnhancedTableHeader>
                   <EnhancedTableRow>
-                    <EnhancedTableHead className="whitespace-nowrap">
+                    <EnhancedTableHead className="whitespace-nowrap text-xs sm:text-sm">
                       Asset
                     </EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">
+                    <EnhancedTableHead className="whitespace-nowrap text-xs sm:text-sm">
                       Quantity
                     </EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">
+                    <EnhancedTableHead className="whitespace-nowrap text-xs sm:text-sm">
                       Avg Cost
                     </EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">
+                    <EnhancedTableHead className="whitespace-nowrap text-xs sm:text-sm">
                       Current Value
                     </EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">
+                    <EnhancedTableHead className="whitespace-nowrap text-xs sm:text-sm">
                       P&L
                     </EnhancedTableHead>
-                    <EnhancedTableHead className="whitespace-nowrap">
+                    <EnhancedTableHead className="whitespace-nowrap text-xs sm:text-sm">
                       P&L %
                     </EnhancedTableHead>
                   </EnhancedTableRow>

@@ -152,4 +152,28 @@
   h3 {
     @apply heading-md;
   }
+  
+  /* Prevent mobile zoom on form inputs */
+  @media (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+    
+    input[type="number"] {
+      font-size: 16px !important;
+    }
+  }
+  
+  /* Ensure viewport remains fixed */
+  @media screen and (max-width: 768px) {
+    html, body {
+      overscroll-behavior: none;
+      touch-action: manipulation;
+    }
+    
+    /* Prevent zoom on focus */
+    input:focus, textarea:focus, select:focus {
+      font-size: 16px;
+    }
+  }
 }

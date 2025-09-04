@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -25,6 +25,19 @@ export function FeeInput({
   const [feePercentage, setFeePercentage] = useState<number>(0);
   const [feePercentageInput, setFeePercentageInput] = useState<string>(""); // To store the raw input string
   const [feeFixedInput, setFeeFixedInput] = useState<string>(""); // To store the raw input string
+
+  // Update feeInputType when initialFeeInputType changes
+  useEffect(() => {
+    setFeeInputType(initialFeeInputType);
+
+    // Reset inputs when switching modes
+    if (initialFeeInputType === "percentage") {
+      setFeeFixedInput("");
+    } else {
+      setFeePercentageInput("");
+      setFeePercentage(0);
+    }
+  }, [initialFeeInputType]);
 
   const handleFeesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -103,6 +116,9 @@ export function FeeInput({
         min="0"
         step={feeInputType === "percentage" ? "0.01" : "0.01"}
         placeholder={feeInputType === "percentage" ? "0.00%" : "0.0"}
+        className="text-base md:text-sm"
+        inputMode={feeInputType === "percentage" ? "decimal" : "decimal"}
+        autoComplete="off"
       />
       {feeInputType === "percentage" && (
         <p className="text-xs text-muted-foreground">

@@ -10,11 +10,11 @@ interface QuantityPriceSectionProps {
   onPriceChange: (price: number) => void;
 }
 
-export function QuantityPriceSection({ 
-  quantity, 
-  price, 
-  onQuantityChange, 
-  onPriceChange 
+export function QuantityPriceSection({
+  quantity,
+  price,
+  onQuantityChange,
+  onPriceChange,
 }: QuantityPriceSectionProps) {
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onQuantityChange(parseFloat(e.target.value) || 0);
@@ -37,21 +37,27 @@ export function QuantityPriceSection({
           min="0"
           step="0.0001"
           required
+          className="text-base md:text-sm"
+          inputMode="decimal"
+          autoComplete="off"
         />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="price">Price</Label>
         <Input
-                  type="number"
-                  id="price"
-                  name="price"
-                  value={price ?? ""}
-                  onChange={handlePriceChange}
-                  min="0"
-                  step="0.0001"
-                  required
-                />
+          type="number"
+          id="price"
+          name="price"
+          value={price ?? ""}
+          onChange={handlePriceChange}
+          min="0"
+          step="0.0001"
+          required
+          className="text-base md:text-sm"
+          inputMode="decimal"
+          autoComplete="off"
+        />
       </div>
     </div>
   );

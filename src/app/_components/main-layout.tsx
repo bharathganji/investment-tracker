@@ -51,7 +51,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {!hideNav && <SidebarNav />}
 
       <div className={`flex-1 ${!hideNav ? "md:ml-64" : ""}`}>
-        <main className="pb-0">
+        <main className="pb-20 md:pb-0 lg:pb-24">
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 20 }}

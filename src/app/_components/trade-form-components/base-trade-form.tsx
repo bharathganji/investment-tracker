@@ -94,6 +94,39 @@ export function BaseTradeForm({
     if (!existingTrade) {
       const settings = getSettings();
       setFeeInputMethod(settings.feeInputMethod);
+
+      // Listen for changes to settings in localStorage
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === "investment-tracker-settings" && e.newValue) {
+          try {
+            const parsedSettings: unknown = JSON.parse(e.newValue);
+            if (
+              parsedSettings &&
+              typeof parsedSettings === "object" &&
+              "feeInputMethod" in parsedSettings
+            ) {
+              const newFeeInputMethod = (
+                parsedSettings as { feeInputMethod: "fixed" | "percentage" }
+              ).feeInputMethod;
+              if (
+                typeof newFeeInputMethod === "string" &&
+                (newFeeInputMethod === "fixed" ||
+                  newFeeInputMethod === "percentage")
+              ) {
+                setFeeInputMethod(newFeeInputMethod);
+              }
+            }
+          } catch (error) {
+            console.error("Error parsing settings from storage event:", error);
+          }
+        }
+      };
+
+      window.addEventListener("storage", handleStorageChange);
+
+      return () => {
+        window.removeEventListener("storage", handleStorageChange);
+      };
     }
 
     // Load unique assets from trade history
@@ -283,88 +316,83 @@ export function BaseTradeForm({
   };
 
   return (
-    <EnhancedCard
-      className="mx-auto w-full max-w-2xl rounded-xl"
-      animateOnHover
-    >
-      <EnhancedCardHeader>
-        <EnhancedCardTitle>{title}</EnhancedCardTitle>
-        <EnhancedCardDescription>{description}</EnhancedCardDescription>
-      </EnhancedCardHeader>
-      <EnhancedCardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+    <div className="mx-auto w-full max-w-2xl">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        <p className="text-muted-foreground">{description}</p>
+      </div>
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            {/* Date and Side */}
-            <DateSideSection
-              date={formData.date}
-              side={formData.side}
-              onDateChange={handleDateChange}
-              onSideChange={handleSideChange}
-            />
-
-            {/* Asset */}
-            <AssetInput
-              value={formData.asset}
-              onChange={handleAssetChange}
-              allAssets={allAssets}
-              onSelectAsset={handleAssetSelect}
-              placeholder="e.g., AAPL, BTC, ETH"
-              required
-            />
-
-            {/* Quantity and Price */}
-            <QuantityPriceSection
-              quantity={formData.quantity}
-              price={formData.price}
-              onQuantityChange={handleQuantityChange}
-              onPriceChange={handlePriceChange}
-            />
-
-            {/* Fees */}
-            <FeeInput
-              fees={formData.fees}
-              quantity={formData.quantity}
-              price={formData.price}
-              onFeesChange={handleFeesChange}
-              initialFeeInputType={feeInputMethod}
-            />
-          </div>
-
-          {/* Notes */}
-          <NotesSection
-            notes={formData.notes ?? ""}
-            onNotesChange={handleNotesChange}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 gap-6">
+          {/* Date and Side */}
+          <DateSideSection
+            date={formData.date}
+            side={formData.side}
+            onDateChange={handleDateChange}
+            onSideChange={handleSideChange}
           />
 
-          {/* Buttons */}
-          <div className="flex justify-end space-x-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel ?? (() => router.back())}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? existingTrade
-                  ? "Updating..."
-                  : "Saving..."
-                : existingTrade
-                  ? "Update Trade"
-                  : "Save Trade"}
-            </Button>
-          </div>
-        </form>
-      </EnhancedCardContent>
-    </EnhancedCard>
+          {/* Asset */}
+          <AssetInput
+            value={formData.asset}
+            onChange={handleAssetChange}
+            allAssets={allAssets}
+            onSelectAsset={handleAssetSelect}
+            placeholder="e.g., AAPL, BTC, ETH"
+            required
+          />
+
+          {/* Quantity and Price */}
+          <QuantityPriceSection
+            quantity={formData.quantity}
+            price={formData.price}
+            onQuantityChange={handleQuantityChange}
+            onPriceChange={handlePriceChange}
+          />
+
+          {/* Fees */}
+          <FeeInput
+            fees={formData.fees}
+            quantity={formData.quantity}
+            price={formData.price}
+            onFeesChange={handleFeesChange}
+            initialFeeInputType={feeInputMethod}
+          />
+        </div>
+
+        {/* Notes */}
+        <NotesSection
+          notes={formData.notes ?? ""}
+          onNotesChange={handleNotesChange}
+        />
+
+        {/* Buttons */}
+        <div className="flex justify-end space-x-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel ?? (() => router.back())}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? existingTrade
+                ? "Updating..."
+                : "Saving..."
+              : existingTrade
+                ? "Update Trade"
+                : "Save Trade"}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 }

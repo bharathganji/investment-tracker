@@ -50,14 +50,14 @@ const MobileNavItem = memo(
       <Button
         variant="ghost"
         className={cn(
-          "flex h-16 w-full flex-col items-center justify-center rounded-none py-2 text-xs",
+          "flex h-16 w-full flex-col items-center justify-center rounded-none py-2 text-[10px]",
           isActive
             ? "bg-muted text-primary"
             : "text-muted-foreground hover:bg-muted hover:text-primary",
         )}
       >
         <div className="flex items-center justify-center">{item.icon}</div>
-        <span className="mt-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap px-1 text-center leading-tight">
+        <span className="mt-1 px-1 text-center text-[10px] leading-tight">
           {item.name}
         </span>
       </Button>

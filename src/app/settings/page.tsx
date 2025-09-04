@@ -19,8 +19,10 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { getSettings, saveSettings, type AppSettings } from "@/lib/settings";
+import { useTheme } from "next-themes";
 
 export default function SettingsPage() {
+  const { setTheme } = useTheme();
   const [settings, setSettings] = useState<AppSettings>({
     theme: "light",
     notifications: true,
@@ -40,6 +42,12 @@ export default function SettingsPage() {
       const newSettings = { ...prev, [key]: value };
       // Save settings to localStorage
       saveSettings({ [key]: value });
+
+      // If theme is changed, apply it immediately
+      if (key === "theme") {
+        setTheme(value as string);
+      }
+
       return newSettings;
     });
   };
@@ -160,7 +168,7 @@ export default function SettingsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-base">Fee Input Method</Label>

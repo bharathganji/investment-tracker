@@ -32,7 +32,7 @@ export default function TradeHistoryPage() {
   }, [trades, loadTradesStats]);
 
   return (
-    <section className="space-y-6 p-4 md:p-6">
+    <section className="space-y-6 p-4 md:p-6 lg:p-8">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold md:text-3xl">Trade History</h1>
         <p className="text-muted-foreground">

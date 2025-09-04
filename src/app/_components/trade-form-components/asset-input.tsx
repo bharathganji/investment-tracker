@@ -27,7 +27,7 @@ export function AssetInput({
   const [showAssetSuggestions, setShowAssetSuggestions] = useState(false);
   const assetInputRef = useRef<HTMLInputElement>(null);
 
- useEffect(() => {
+  useEffect(() => {
     setFilteredAssets(allAssets);
   }, [allAssets]);
 
@@ -74,6 +74,10 @@ export function AssetInput({
         placeholder={placeholder}
         required={required}
         ref={assetInputRef}
+        className="text-base md:text-sm"
+        inputMode="text"
+        autoComplete="off"
+        autoCapitalize="off"
       />
       {showAssetSuggestions && filteredAssets.length > 0 && (
         <div className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-background shadow-lg transition-all duration-200 ease-in-out">

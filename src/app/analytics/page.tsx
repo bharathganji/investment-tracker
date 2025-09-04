@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <section className="mx-auto max-w-6xl space-y-6 p-6">
+    <section className="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
       <EnhancedCard className="rounded-xl" animateOnHover>
         <EnhancedCardHeader>
           <EnhancedCardTitle>Analytics & Reports</EnhancedCardTitle>
@@ -113,7 +113,7 @@ export default function AnalyticsPage() {
         </EnhancedCardContent>
       </EnhancedCard>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <PerformanceOverview />
         <FeeAnalysis />
       </div>
