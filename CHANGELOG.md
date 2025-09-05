@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/bharathganji/investment-tracker/compare/v1.0.2...v1.1.0) (2025-09-05)
+
+### Features
+
+- **auth:** implement comprehensive authentication system with Google OAuth and role-based access control ([61a20cf](https://github.com/bharathganji/investment-tracker/commit/61a20cf95fa4703debc1931750d26414fd251306))
+
 ## [1.0.2](https://github.com/bharathganji/investment-tracker/compare/v1.0.1...v1.0.2) (2025-09-04)
 
 ### Bug Fixes
