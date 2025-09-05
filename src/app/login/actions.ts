@@ -1,45 +1,15 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
-export async function login(formData: FormData) {
-  const supabase = createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  const { error } = await supabase.auth.signInWithPassword(data);
-
-  if (error) {
-    redirect("/error");
-  }
-
-  revalidatePath("/", "layout");
-  redirect("/");
-}
-
-export async function signup(formData: FormData) {
-  const supabase = createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  const { error } = await supabase.auth.signUp(data);
-
-  if (error) {
-    redirect("/error");
-  }
-
+// Google OAuth callback handler - this is a placeholder since Google OAuth
+// is handled entirely by Supabase and the auth context
+export async function handleGoogleOAuthCallback() {
+  // This function is intentionally left empty as Google OAuth is handled
+  // by the auth context and Supabase directly
+  // The actual redirect happens in the Supabase auth flow
   revalidatePath("/", "layout");
   redirect("/");
 }
