@@ -17,6 +17,7 @@ import { FeeAnalysis } from "./_components/fee-analysis";
 import { RecentTrades } from "./_components/recent-trades";
 import { DetailedReports } from "./_components/detailed-reports";
 import { GoalInsightsSummary } from "./_components/goal-insights-summary";
+import { ProtectedRoute } from "@/components/protected-route";
 
 export default function AnalyticsPage() {
   const tradesState = useAppSelector((state) => state.trades);
@@ -83,44 +84,48 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <section className="mx-auto max-w-6xl p-6">
-        <EnhancedCard className="rounded-xl" animateOnHover>
-          <EnhancedCardHeader>
-            <EnhancedCardTitle>Analytics & Reports</EnhancedCardTitle>
-            <EnhancedCardDescription>
-              Loading analytics...
-            </EnhancedCardDescription>
-          </EnhancedCardHeader>
-          <EnhancedCardContent>
-            <div className="py-8 text-center">Loading analytics...</div>
-          </EnhancedCardContent>
-        </EnhancedCard>
-      </section>
+      <ProtectedRoute>
+        <section className="mx-auto max-w-6xl p-6">
+          <EnhancedCard className="rounded-xl" animateOnHover>
+            <EnhancedCardHeader>
+              <EnhancedCardTitle>Analytics & Reports</EnhancedCardTitle>
+              <EnhancedCardDescription>
+                Loading analytics...
+              </EnhancedCardDescription>
+            </EnhancedCardHeader>
+            <EnhancedCardContent>
+              <div className="py-8 text-center">Loading analytics...</div>
+            </EnhancedCardContent>
+          </EnhancedCard>
+        </section>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <section className="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
-      <EnhancedCard className="rounded-xl" animateOnHover>
-        <EnhancedCardHeader>
-          <EnhancedCardTitle>Analytics & Reports</EnhancedCardTitle>
-          <EnhancedCardDescription>
-            Performance metrics and detailed analysis
-          </EnhancedCardDescription>
-        </EnhancedCardHeader>
-        <EnhancedCardContent>
-          <MetricsGrid metrics={metrics} />
-        </EnhancedCardContent>
-      </EnhancedCard>
+    <ProtectedRoute>
+      <section className="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
+        <EnhancedCard className="rounded-xl" animateOnHover>
+          <EnhancedCardHeader>
+            <EnhancedCardTitle>Analytics & Reports</EnhancedCardTitle>
+            <EnhancedCardDescription>
+              Performance metrics and detailed analysis
+            </EnhancedCardDescription>
+          </EnhancedCardHeader>
+          <EnhancedCardContent>
+            <MetricsGrid metrics={metrics} />
+          </EnhancedCardContent>
+        </EnhancedCard>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <PerformanceOverview />
-        <FeeAnalysis />
-      </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <PerformanceOverview />
+          <FeeAnalysis />
+        </div>
 
-      <GoalInsightsSummary />
-      <RecentTrades />
-      <DetailedReports />
-    </section>
+        <GoalInsightsSummary />
+        <RecentTrades />
+        <DetailedReports />
+      </section>
+    </ProtectedRoute>
   );
 }

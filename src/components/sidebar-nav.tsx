@@ -12,6 +12,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/contexts/auth-context";
 
 interface NavItem {
   name: string;
@@ -68,6 +69,15 @@ NavItemComponent.displayName = "NavItemComponent";
 
 export const SidebarNav: React.FC = () => {
   const pathname = usePathname();
+  const { user, isLoading } = useAuth();
+
+  // Don't render anything while auth state is loading
+  if (isLoading) {
+    return null;
+  }
+
+  // All navigation items are available to all authenticated users
+  const allNavItems = navItems;
 
   return (
     <div className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
@@ -77,7 +87,7 @@ export const SidebarNav: React.FC = () => {
         </div>
         <div className="mt-5 flex flex-1 flex-col">
           <nav className="flex-1 space-y-1 px-2">
-            {navItems.map((item) => (
+            {allNavItems.map((item) => (
               <NavItemComponent
                 key={item.href}
                 item={item}

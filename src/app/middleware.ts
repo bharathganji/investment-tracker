@@ -8,12 +8,24 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * Match only protected routes to optimize performance:
+     * - Dashboard and related pages
+     * - Portfolio management
+     * - Trade entry and history
+     * - Analytics and goals
+     * - Profile and settings
+     * - Admin routes (role-based access control)
+     * - Login page (to redirect authenticated users)
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/dashboard/:path*",
+    "/portfolio/:path*",
+    "/trade-entry/:path*",
+    "/trade-history/:path*",
+    "/analytics/:path*",
+    "/goals/:path*",
+    "/settings/:path*",
+    "/admin/:path*",
+    "/login",
   ],
 };

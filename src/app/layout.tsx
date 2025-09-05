@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 import StoreProvider from "@/store/provider";
 import { CustomThemeProvider } from "@/components/custom-theme-provider";
+import { AuthProvider } from "@/contexts/auth-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -60,10 +61,12 @@ export default function RootLayout({
         >
           <CustomThemeProvider />
           <StoreProvider>
-            <TRPCReactProvider>
-              <MainLayout>{children}</MainLayout>
-              <Toaster />
-            </TRPCReactProvider>
+            <AuthProvider>
+              <TRPCReactProvider>
+                <MainLayout>{children}</MainLayout>
+                <Toaster />
+              </TRPCReactProvider>
+            </AuthProvider>
           </StoreProvider>
         </ThemeProvider>
       </body>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -18,13 +18,6 @@ import { QuantityPriceSection } from "./quantity-price-section";
 import { FeeInput } from "./fee-input";
 import { NotesSection } from "./notes-section";
 import { Button } from "@/components/ui/button";
-import {
-  EnhancedCard,
-  EnhancedCardContent,
-  EnhancedCardDescription,
-  EnhancedCardHeader,
-  EnhancedCardTitle,
-} from "@/components/ui/enhanced-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -50,8 +43,10 @@ export function BaseTradeForm({
   const dispatch = useAppDispatch();
 
   const tradesState = useAppSelector((state) => state.trades);
-  const trades =
-    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const trades = useMemo(
+    () => (tradesState && "trades" in tradesState ? tradesState.trades : []),
+    [tradesState],
+  );
 
   const [formData, setFormData] = useState<TradeFormData>(
     existingTrade
@@ -80,7 +75,6 @@ export function BaseTradeForm({
   const [feeInputMethod, setFeeInputMethod] = useState<"fixed" | "percentage">(
     "fixed",
   );
-  const assetInputRef = useRef<HTMLInputElement>(null);
   const { validateTradeForm } = useTradeValidation();
 
   // Load trades when component mounts

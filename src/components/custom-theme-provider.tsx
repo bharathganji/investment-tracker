@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { getSettings } from "@/lib/settings";
 
 export function CustomThemeProvider() {
   const { setTheme } = useTheme();
+  const [initialThemeApplied, setInitialThemeApplied] = useState(false);
 
   useEffect(() => {
     // Load theme from settings and apply it
     const settings = getSettings();
     setTheme(settings.theme);
+    setInitialThemeApplied(true);
 
     // Listen for changes to settings in localStorage
     const handleStorageChange = (e: StorageEvent) => {
@@ -42,6 +44,14 @@ export function CustomThemeProvider() {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, [setTheme]);
+
+  // Re-apply theme when component re-renders (e.g., after HMR)
+  useEffect(() => {
+    if (initialThemeApplied) {
+      const settings = getSettings();
+      setTheme(settings.theme);
+    }
+  }, [initialThemeApplied, setTheme]);
 
   return null;
 }

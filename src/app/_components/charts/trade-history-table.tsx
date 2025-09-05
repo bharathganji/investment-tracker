@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { loadTrades } from "@/store/trades/tradesThunks";
 import { type Trade } from "@/types";
@@ -31,12 +31,13 @@ interface TradeHistoryTableProps {
 export function TradeHistoryTable({
   limit,
   onTradeClick,
-  onRefresh,
 }: TradeHistoryTableProps) {
   const dispatch = useAppDispatch();
   const tradesState = useAppSelector((state) => state.trades);
-  const trades =
-    tradesState && "trades" in tradesState ? tradesState.trades : [];
+  const trades = useMemo(
+    () => (tradesState && "trades" in tradesState ? tradesState.trades : []),
+    [tradesState],
+  );
   const tradesLoading =
     tradesState && "loading" in tradesState ? tradesState.loading : false;
 
@@ -61,13 +62,6 @@ export function TradeHistoryTable({
 
   const loadTradesData = () => {
     void dispatch(loadTrades());
-  };
-
-  const refreshData = () => {
-    loadTradesData();
-    if (onRefresh) {
-      onRefresh();
-    }
   };
 
   if (tradesLoading) {
